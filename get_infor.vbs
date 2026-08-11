@@ -165,7 +165,6 @@ strProductKey = GetWindowsProductKey()
 Dim strSubject, strBody
 strSubject = "Full System Information Audit - " & strSystemName
 
-<<<<<<< HEAD
 
 ' ============================================================================
 ' get user mailbox
@@ -223,56 +222,6 @@ strBody =   "=== System Information ===" & vbCrLf & vbCrLf & _
 
 ' msgbox strBody
 ' Call Outlook safely via PowerShell File System
-=======
-strBody = "Item" & vbTab & vbTab & vbTab & "Value" & vbCrLf & _
-          "--------------------------------------------------------------------------------" & vbCrLf & _
-          "OS Name:" & vbTab & vbTab & vbTab & strOSName & vbCrLf & _
-          "Version:" & vbTab & vbTab & vbTab & strOSVersion & vbCrLf & _
-          "Other OS Description:" & vbTab & strOSDescription & vbCrLf & _
-          "OS Manufacturer:" & vbTab & vbTab & strOSManufacturer & vbCrLf & _
-          "System Name:" & vbTab & vbTab & strSystemName & vbCrLf & _
-          "System Manufacturer:" & vbTab & strSysManufacturer & vbCrLf & _
-          "System Model:" & vbTab & vbTab & strSysModel & vbCrLf & _
-          "System Type:" & vbTab & vbTab & strSysType & vbCrLf & _
-          "System SKU:" & vbTab & vbTab & strSysSKU & vbCrLf & _
-          "Processor:" & vbTab & vbTab & strProcessor & vbCrLf & _
-          "BIOS Version/Date:" & vbTab & strBIOSVersion & vbCrLf & _
-          "SMBIOS Version:" & vbTab & vbTab & strSMBIOSVersion & vbCrLf & _
-          "Embedded Controller Version:" & vbTab & strECVersion & vbCrLf & _
-          "BIOS Mode:" & vbTab & vbTab & strBIOSMode & vbCrLf & _
-          "BaseBoard Manufacturer:" & vbTab & strBoardManufacturer & vbCrLf & _
-          "BaseBoard Product:" & vbTab & strBoardProduct & vbCrLf & _
-          "BaseBoard Version:" & vbTab & strBoardVersion & vbCrLf & _
-          "Platform Role:" & vbTab & vbTab & strRole & vbCrLf & _
-          "Secure Boot State:" & vbTab & strSecureBoot & vbCrLf & _
-          "Windows Directory:" & vbTab & strWinDir & vbCrLf & _
-          "System Directory:" & vbTab & strSysDir & vbCrLf & _
-          "Boot Device:" & vbTab & vbTab & strBootDevice & vbCrLf & _
-          "Locale:" & vbTab & vbTab & vbTab & strLocale & vbCrLf & _
-          "Hardware Abstraction Layer:" & vbTab & strHALVersion & vbCrLf & _
-          "User Name:" & vbTab & vbTab & strLogonAccount & vbCrLf & _
-          "Time Zone:" & vbTab & vbTab & strTimeZone & vbCrLf & _
-          "Installed Physical Memory (RAM): " & strInstalledRAM & vbCrLf & _
-          "Total Physical Memory:" & vbTab & strTotalRAM & vbCrLf & _
-          "Available Physical Memory:" & vbTab & strAvailRAM & vbCrLf & _
-          "Total Virtual Memory:" & vbTab & strTotalVirtual & vbCrLf & _
-          "Available Virtual Memory:" & vbTab & strAvailVirtual & vbCrLf & _
-          "Page File Space:" & vbTab & strPageFileSize & vbCrLf & _
-          "Page File:" & vbTab & vbTab & strPageFilePath & vbCrLf & _
-          "Kernel DMA Protection:" & vbTab & strKernelDMA & vbCrLf & _
-          "Virtualization-based security:" & vbTab & strVBSStatus & vbCrLf & _
-          "VBS Required Security Props:" & vbTab & strVBSReq & vbCrLf & _
-          "VBS Available Security Props:" & vbTab & strVBSAvail & vbCrLf & _
-          "VBS Security Services Configured: " & strVBSSec & vbCrLf & _
-          "App Control for Business policy: " & strAppControl & vbCrLf & _
-          "App Control for Business user policy: " & strAppControlUser & vbCrLf & _
-          "SMM Isolation Level:" & vbTab & strSMMIsolation & vbCrLf & _
-          "Windows Product Key:" & vbTab & strProductKey & vbCrLf & _
-          "BIOS Serial Number:" & vbTab & strBIOSSerial & vbCrLf & _
-          "Report Time:" & vbTab & vbTab & Now()
-
-' Open New Outlook Composition Window
->>>>>>> 58c4e66a28ca58a25f7eaecc829f20d04b488240
 SendViaNewOutlook strRecipientEmail, strCcEmail, strSubject, strBody
 
 ' =========================================================================
@@ -282,7 +231,6 @@ SendViaNewOutlook strRecipientEmail, strCcEmail, strSubject, strBody
 Sub SendViaNewOutlook(strTo, strCC, strSubj, strBodyText)
     On Error Resume Next
     Dim objFSO, strTempPath, strPSFile, objFile, strCommand
-<<<<<<< HEAD
     
     Set objFSO = CreateObject("Scripting.FileSystemObject")
     strTempPath = objShell.ExpandEnvironmentStrings("%TEMP%")
@@ -324,49 +272,10 @@ Sub SendViaNewOutlook(strTo, strCC, strSubj, strBodyText)
         Err.Clear
     ' Else
     '     WScript.Echo "Da mo New Outlook và gửi thông tin máy cho bộ phận IT. Vui long kiem tra!"
-=======
-    
-    Set objFSO = CreateObject("Scripting.FileSystemObject")
-    strTempPath = objShell.ExpandEnvironmentStrings("%TEMP%")
-    strPSFile = strTempPath & "\send_mail_temp.ps1"
-    
-    ' Generate PowerShell Script to trigger mailto protocol for New Outlook
-    Set objFile = objFSO.CreateTextFile(strPSFile, True, True)
-    
-    objFile.WriteLine "$to = [System.Uri]::EscapeDataString('" & strTo & "')"
-    objFile.WriteLine "$subject = [System.Uri]::EscapeDataString('" & strSubj & "')"
-    objFile.WriteLine "$body = [System.Uri]::EscapeDataString(@'"
-    objFile.WriteLine strBodyText
-    objFile.WriteLine "'@)"
-    
-    If strCC <> "" Then
-        objFile.WriteLine "$cc = [System.Uri]::EscapeDataString('" & strCC & "')"
-        objFile.WriteLine "$mailto = ""mailto:$to?cc=$cc&subject=$subject&body=$body"""
-    Else
-        objFile.WriteLine "$mailto = ""mailto:$to?subject=$subject&body=$body"""
-    End If
-    
-    objFile.WriteLine "Start-Process $mailto"
-    objFile.Close
-    
-    ' Run PowerShell hidden
-    strCommand = "powershell.exe -ExecutionPolicy Bypass -NoProfile -File """ & strPSFile & """"
-    objShell.Run strCommand, 0, True
-    
-    ' Clean up temp script file
-    If objFSO.FileExists(strPSFile) Then objFSO.DeleteFile(strPSFile)
-    
-    If Err.Number <> 0 Then
-        WScript.Echo "Loi khi mo New Outlook: " & Err.Description
-        Err.Clear
-    Else
-        WScript.Echo "Da mo giao dien New Outlook voi thong tin he thong. Vui long bam Send de gui!"
->>>>>>> 58c4e66a28ca58a25f7eaecc829f20d04b488240
     End If
     On Error GoTo 0
 End Sub
 
-<<<<<<< HEAD
 ' --- Function to Retrieve Outlook Email Address ---
 Function GetOutlookEmail()
     On Error Resume Next
@@ -392,8 +301,6 @@ Function GetOutlookEmail()
     On Error GoTo 0
 End Function
 
-=======
->>>>>>> 58c4e66a28ca58a25f7eaecc829f20d04b488240
 Function GetHALVersion()
     On Error Resume Next
     Dim fso, halFile
