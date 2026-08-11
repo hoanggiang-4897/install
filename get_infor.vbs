@@ -3,8 +3,10 @@ Option Explicit
 ' =========================================================================
 ' RECIPIENT CONFIGURATION
 ' =========================================================================
-Dim strRecipientEmail
+Dim strRecipientEmail, strCcEmail
 strRecipientEmail = "giang.nh@sclife.com.vn" ' Set destination email address
+' strCcEmail  = "NI.hq@sclife.com.vn" ' set cc email
+strCcEmail  = "" ' set cc email
 
 ' =========================================================================
 ' MAIN SCRIPT
@@ -16,8 +18,10 @@ strComputer = "."
 Set objNetwork = CreateObject("WScript.Network")
 Set objShell   = CreateObject("WScript.Shell")
 
-' Connect to WMI Root and CIMV2
+' Connect to WMI Root
+On Error Resume Next
 Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+On Error GoTo 0
 
 ' --- 1. User & Outlook Info ---
 Dim strLogonAccount, strOutlookEmail
@@ -29,7 +33,8 @@ Dim strOSName, strOSVersion, strOSDescription, strOSManufacturer
 Dim strWinDir, strSysDir, strLocale, strTimeZone
 Dim strTotalRAM, strAvailRAM, strTotalVirtual, strAvailVirtual, strPageFileSize, strPageFilePath
 
-Set colItems = objWMIService.ExecQuery("SELECT * FROM Win32_OperatingSystem")
+On Error Resume Next
+Set colItems = objWMIService.ExecQuery("SELECT Caption, Version, BuildNumber, Description, Manufacturer, WindowsDirectory, SystemDirectory, MUILanguages, TotalVisibleMemorySize, FreePhysicalMemory, TotalVirtualMemorySize, FreeVirtualMemory, SizeStoredInPagingFiles FROM Win32_OperatingSystem")
 For Each objItem In colItems
     strOSName        = Split(objItem.Caption, "(")(0)
     strOSVersion     = objItem.Version & " Build " & objItem.BuildNumber
@@ -48,26 +53,32 @@ For Each objItem In colItems
     strPageFileSize = Round(CDbl(objItem.SizeStoredInPagingFiles) / (1024 * 1024), 2) & " GB"
     Exit For
 Next
+On Error GoTo 0
 
 ' Time Zone
+On Error Resume Next
 Set colItems = objWMIService.ExecQuery("SELECT Caption FROM Win32_TimeZone")
 For Each objItem In colItems
     strTimeZone = objItem.Caption
     Exit For
 Next
+On Error GoTo 0
 
 ' Page File Location
+On Error Resume Next
 Set colItems = objWMIService.ExecQuery("SELECT Name FROM Win32_PageFileSetting")
 For Each objItem In colItems
     strPageFilePath = objItem.Name
     Exit For
 Next
 If strPageFilePath = "" Then strPageFilePath = "C:\pagefile.sys"
+On Error GoTo 0
 
 ' --- 3. System & Hardware Info (Win32_ComputerSystem) ---
 Dim strSystemName, strSysManufacturer, strSysModel, strSysType, strSysSKU, strInstalledRAM, strRole, strHypervisor
 
-Set colItems = objWMIService.ExecQuery("SELECT * FROM Win32_ComputerSystem")
+On Error Resume Next
+Set colItems = objWMIService.ExecQuery("SELECT Name, Manufacturer, Model, SystemType, SystemSKUNumber, TotalPhysicalMemory, PCSystemType, HypervisorPresent FROM Win32_ComputerSystem")
 For Each objItem In colItems
     strSystemName      = objItem.Name
     strSysManufacturer = objItem.Manufacturer
@@ -79,29 +90,28 @@ For Each objItem In colItems
     strHypervisor      = objItem.HypervisorPresent
     Exit For
 Next
+On Error GoTo 0
 
 ' --- 4. Processor & HAL Info ---
 Dim strProcessor, strHALVersion
-Set colItems = objWMIService.ExecQuery("SELECT * FROM Win32_Processor")
+On Error Resume Next
+Set colItems = objWMIService.ExecQuery("SELECT Name, MaxClockSpeed, NumberOfCores, NumberOfLogicalProcessors FROM Win32_Processor")
 For Each objItem In colItems
     strProcessor = Trim(objItem.Name) & ", " & objItem.MaxClockSpeed & " Mhz, " & _
                    objItem.NumberOfCores & " Core(s), " & _
                    objItem.NumberOfLogicalProcessors & " Logical Processor(s)"
     Exit For
 Next
+On Error GoTo 0
 
 ' Hardware Abstraction Layer (HAL)
-Set colItems = objWMIService.ExecQuery("SELECT Version FROM Win32_PnPEntity WHERE Name LIKE '%Hardware Abstraction Layer%'")
-For Each objItem In colItems
-    strHALVersion = "Version = """ & objItem.Version & """"
-    Exit For
-Next
-If strHALVersion = "" Then strHALVersion = "Version = ""10.0.26100.1"""
+strHALVersion = GetHALVersion()
 
 ' --- 5. BIOS Info (Win32_BIOS) ---
 Dim strBIOSVersion, strSMBIOSVersion, strECVersion, strBIOSSerial, strBIOSMode, strSecureBoot
 
-Set colItems = objWMIService.ExecQuery("SELECT * FROM Win32_BIOS")
+On Error Resume Next
+Set colItems = objWMIService.ExecQuery("SELECT Manufacturer, SMBIOSBIOSVersion, ReleaseDate, SMBIOSMajorVersion, SMBIOSMinorVersion, EmbeddedControllerMajorVersion, EmbeddedControllerMinorVersion, SerialNumber FROM Win32_BIOS")
 For Each objItem In colItems
     strBIOSVersion   = objItem.Manufacturer & " " & objItem.SMBIOSBIOSVersion & ", " & ConvertWMIDate(objItem.ReleaseDate)
     strSMBIOSVersion = objItem.SMBIOSMajorVersion & "." & objItem.SMBIOSMinorVersion
@@ -109,6 +119,7 @@ For Each objItem In colItems
     strBIOSSerial    = Trim(objItem.SerialNumber)
     Exit For
 Next
+On Error GoTo 0
 
 ' BIOS Mode & Secure Boot State
 strBIOSMode   = GetRegistryValue("HKLM\System\CurrentControlSet\Control\SecureBoot\State\UEFI", "UEFI", "Legacy / Unknown")
@@ -117,7 +128,8 @@ strSecureBoot = GetSecureBootState()
 ' --- 6. BaseBoard Info ---
 Dim strBoardManufacturer, strBoardProduct, strBoardVersion
 
-Set colItems = objWMIService.ExecQuery("SELECT * FROM Win32_BaseBoard")
+On Error Resume Next
+Set colItems = objWMIService.ExecQuery("SELECT Manufacturer, Product, Version FROM Win32_BaseBoard")
 For Each objItem In colItems
     strBoardManufacturer = objItem.Manufacturer
     strBoardProduct      = objItem.Product
@@ -125,6 +137,7 @@ For Each objItem In colItems
     If strBoardVersion = "" Then strBoardVersion = "Not Defined"
     Exit For
 Next
+On Error GoTo 0
 
 ' --- 7. Security, DMA, VBS & App Control Statuses ---
 Dim strKernelDMA, strVBSStatus, strVBSReq, strVBSAvail, strVBSSec, strAppControl, strAppControlUser, strSMMIsolation
@@ -140,11 +153,13 @@ strSMMIsolation   = "Firmware Protection Version Three"
 
 ' --- 8. Boot Device & Windows Product Key ---
 Dim strBootDevice, strProductKey
+On Error Resume Next
 Set colItems = objWMIService.ExecQuery("SELECT BootDevice FROM Win32_OperatingSystem")
 For Each objItem In colItems
     strBootDevice = objItem.BootDevice
     Exit For
 Next
+On Error GoTo 0
 
 strProductKey = GetWindowsProductKey()
 
@@ -194,22 +209,22 @@ strBody = "Item" & vbTab & vbTab & vbTab & "Value" & vbCrLf & _
           "Virtualization-based security:" & vbTab & strVBSStatus & vbCrLf & _
           "VBS Required Security Props:" & vbTab & strVBSReq & vbCrLf & _
           "VBS Available Security Props:" & vbTab & strVBSAvail & vbCrLf & _
-          "VBS Security Services Configured:" & strVBSSec & vbCrLf & _
-          "App Control for Business policy:" & vbTab & strAppControl & vbCrLf & _
-          "App Control for Business user policy:" & strAppControlUser & vbCrLf & _
+          "VBS Security Services Configured: " & strVBSSec & vbCrLf & _
+          "App Control for Business policy: " & strAppControl & vbCrLf & _
+          "App Control for Business user policy: " & strAppControlUser & vbCrLf & _
           "SMM Isolation Level:" & vbTab & strSMMIsolation & vbCrLf & _
           "Windows Product Key:" & vbTab & strProductKey & vbCrLf & _
           "BIOS Serial Number:" & vbTab & strBIOSSerial & vbCrLf & _
           "Report Time:" & vbTab & vbTab & Now()
 
 ' Send Email via Outlook COM
-SendViaOutlook strRecipientEmail, strSubject, strBody
+SendViaOutlook strRecipientEmail, strSubject, strCcEmail, strBody
 
 ' =========================================================================
 ' HELPER FUNCTIONS
 ' =========================================================================
 
-Sub SendViaOutlook(strTo, strSubj, strBodyText)
+Sub SendViaOutlook(strTo, strSubj, strCC, strBodyText)
     On Error Resume Next
     Dim objOutlook, objMail
     Set objOutlook = CreateObject("Outlook.Application")
@@ -224,6 +239,7 @@ Sub SendViaOutlook(strTo, strSubj, strBodyText)
     With objMail
         .To = strTo
         .Subject = strSubj
+        .CC = strCC
         .Body = strBodyText
         .Send
     End With
@@ -255,6 +271,19 @@ Function GetOutlookEmail()
         GetOutlookEmail = Left(strEmails, Len(strEmails) - 2)
     Else
         GetOutlookEmail = "No profile configured"
+    End If
+    On Error GoTo 0
+End Function
+
+Function GetHALVersion()
+    On Error Resume Next
+    Dim fso, halFile
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    halFile = fso.GetSpecialFolder(1) & "\hal.dll"
+    If fso.FileExists(halFile) Then
+        GetHALVersion = "Version = """ & fso.GetFileVersion(halFile) & """"
+    Else
+        GetHALVersion = "Version = ""10.0.26100.1"""
     End If
     On Error GoTo 0
 End Function
