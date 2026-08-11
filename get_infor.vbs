@@ -5,8 +5,7 @@ Option Explicit
 ' =========================================================================
 Dim strRecipientEmail, strCcEmail
 strRecipientEmail = "giang.nh@sclife.com.vn" ' Set destination email address
-' strCcEmail  = "NI.hq@sclife.com.vn" ' set cc email
-strCcEmail  = "" ' set cc email
+strCcEmail        = ""                      ' Set CC email address (e.g., "NI.hq@sclife.com.vn")
 
 ' =========================================================================
 ' MAIN SCRIPT
@@ -23,10 +22,9 @@ On Error Resume Next
 Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
 On Error GoTo 0
 
-' --- 1. User & Outlook Info ---
-Dim strLogonAccount, strOutlookEmail
+' --- 1. User Account Info ---
+Dim strLogonAccount
 strLogonAccount = objNetwork.UserDomain & "\" & objNetwork.UserName
-strOutlookEmail = GetOutlookEmail()
 
 ' --- 2. Operating System Info (Win32_OperatingSystem) ---
 Dim strOSName, strOSVersion, strOSDescription, strOSManufacturer
@@ -104,7 +102,6 @@ For Each objItem In colItems
 Next
 On Error GoTo 0
 
-' Hardware Abstraction Layer (HAL)
 strHALVersion = GetHALVersion()
 
 ' --- 5. BIOS Info (Win32_BIOS) ---
@@ -121,7 +118,6 @@ For Each objItem In colItems
 Next
 On Error GoTo 0
 
-' BIOS Mode & Secure Boot State
 strBIOSMode   = GetRegistryValue("HKLM\System\CurrentControlSet\Control\SecureBoot\State\UEFI", "UEFI", "Legacy / Unknown")
 strSecureBoot = GetSecureBootState()
 
@@ -164,106 +160,136 @@ On Error GoTo 0
 strProductKey = GetWindowsProductKey()
 
 ' =========================================================================
-' ASSEMBLE REPORT & SEND EMAIL
+' ASSEMBLE REPORT & OPEN OUTLOOK
 ' =========================================================================
 Dim strSubject, strBody
 strSubject = "Full System Information Audit - " & strSystemName
 
-strBody = "Item" & vbTab & vbTab & vbTab & "Value" & vbCrLf & _
-          "--------------------------------------------------------------------------------" & vbCrLf & _
-          "OS Name:" & vbTab & vbTab & vbTab & strOSName & vbCrLf & _
-          "Version:" & vbTab & vbTab & vbTab & strOSVersion & vbCrLf & _
-          "Other OS Description:" & vbTab & strOSDescription & vbCrLf & _
-          "OS Manufacturer:" & vbTab & vbTab & strOSManufacturer & vbCrLf & _
-          "System Name:" & vbTab & vbTab & strSystemName & vbCrLf & _
-          "System Manufacturer:" & vbTab & strSysManufacturer & vbCrLf & _
-          "System Model:" & vbTab & vbTab & strSysModel & vbCrLf & _
-          "System Type:" & vbTab & vbTab & strSysType & vbCrLf & _
-          "System SKU:" & vbTab & vbTab & strSysSKU & vbCrLf & _
-          "Processor:" & vbTab & vbTab & strProcessor & vbCrLf & _
-          "BIOS Version/Date:" & vbTab & strBIOSVersion & vbCrLf & _
-          "SMBIOS Version:" & vbTab & vbTab & strSMBIOSVersion & vbCrLf & _
-          "Embedded Controller Version:" & vbTab & strECVersion & vbCrLf & _
-          "BIOS Mode:" & vbTab & vbTab & strBIOSMode & vbCrLf & _
-          "BaseBoard Manufacturer:" & vbTab & strBoardManufacturer & vbCrLf & _
-          "BaseBoard Product:" & vbTab & strBoardProduct & vbCrLf & _
-          "BaseBoard Version:" & vbTab & strBoardVersion & vbCrLf & _
-          "Platform Role:" & vbTab & vbTab & strRole & vbCrLf & _
-          "Secure Boot State:" & vbTab & strSecureBoot & vbCrLf & _
-          "Windows Directory:" & vbTab & strWinDir & vbCrLf & _
-          "System Directory:" & vbTab & strSysDir & vbCrLf & _
-          "Boot Device:" & vbTab & vbTab & strBootDevice & vbCrLf & _
-          "Locale:" & vbTab & vbTab & vbTab & strLocale & vbCrLf & _
-          "Hardware Abstraction Layer:" & vbTab & strHALVersion & vbCrLf & _
-          "User Name:" & vbTab & vbTab & strLogonAccount & vbCrLf & _
-          "Outlook Email:" & vbTab & vbTab & strOutlookEmail & vbCrLf & _
-          "Time Zone:" & vbTab & vbTab & strTimeZone & vbCrLf & _
-          "Installed Physical Memory (RAM): " & strInstalledRAM & vbCrLf & _
-          "Total Physical Memory:" & vbTab & strTotalRAM & vbCrLf & _
-          "Available Physical Memory:" & vbTab & strAvailRAM & vbCrLf & _
-          "Total Virtual Memory:" & vbTab & strTotalVirtual & vbCrLf & _
-          "Available Virtual Memory:" & vbTab & strAvailVirtual & vbCrLf & _
-          "Page File Space:" & vbTab & strPageFileSize & vbCrLf & _
-          "Page File:" & vbTab & vbTab & strPageFilePath & vbCrLf & _
-          "Kernel DMA Protection:" & vbTab & strKernelDMA & vbCrLf & _
-          "Virtualization-based security:" & vbTab & strVBSStatus & vbCrLf & _
-          "VBS Required Security Props:" & vbTab & strVBSReq & vbCrLf & _
-          "VBS Available Security Props:" & vbTab & strVBSAvail & vbCrLf & _
-          "VBS Security Services Configured: " & strVBSSec & vbCrLf & _
-          "App Control for Business policy: " & strAppControl & vbCrLf & _
-          "App Control for Business user policy: " & strAppControlUser & vbCrLf & _
-          "SMM Isolation Level:" & vbTab & strSMMIsolation & vbCrLf & _
-          "Windows Product Key:" & vbTab & strProductKey & vbCrLf & _
-          "BIOS Serial Number:" & vbTab & strBIOSSerial & vbCrLf & _
-          "Report Time:" & vbTab & vbTab & Now()
 
-' Send Email via Outlook COM
-SendViaOutlook strRecipientEmail, strSubject, strCcEmail, strBody
+' ============================================================================
+' get user mailbox
+' ============================================================================
+Dim strOutlookEmail
+' 5. Outlook Email Address (if configured)
+strOutlookEmail = GetOutlookEmail()
+
+strBody =   "=== System Information ===" & vbCrLf & vbCrLf & _
+            "Email address: " & strOutlookEmail & vbCrLf & _
+            "OS Name: " & strOSName & vbCrLf & _
+            "Version: " & strOSVersion & vbCrLf & _
+            "Other OS Description: " & strOSDescription & vbCrLf & _
+            "OS Manufacturer: " & strOSManufacturer & vbCrLf & _
+            "System Name: " & strSystemName & vbCrLf & _
+            "System Manufacturer: " & strSysManufacturer & vbCrLf & _
+            "System Model: " & strSysModel & vbCrLf & _
+            "System Type: " & strSysType & vbCrLf & _
+            "System SKU: " & strSysSKU & vbCrLf & _
+            "Processor: " & strProcessor & vbCrLf & _
+            "BIOS Version/Date: " & strBIOSVersion & vbCrLf & _
+            "SMBIOS Version: " & strSMBIOSVersion & vbCrLf & _
+            "Embedded Controller Version: " & strECVersion & vbCrLf & _
+            "BIOS Mode: " & strBIOSMode & vbCrLf & _
+            "BaseBoard Manufacturer: " & strBoardManufacturer & vbCrLf & _
+            "BaseBoard Product: " & strBoardProduct & vbCrLf & _
+            "BaseBoard Version: " & strBoardVersion & vbCrLf & _
+            "Platform Role: " & strRole & vbCrLf & _
+            "Secure Boot State: " & strSecureBoot & vbCrLf & _
+            "Windows Directory: " & strWinDir & vbCrLf & _
+            "System Directory: " & strSysDir & vbCrLf & _
+            "Boot Device: " & strBootDevice & vbCrLf & _
+            "Locale: " & strLocale & vbCrLf & _
+            "Hardware Abstraction Layer: " & strHALVersion & vbCrLf & _
+            "User Name: " & strLogonAccount & vbCrLf & _
+            "Time Zone: " & strTimeZone & vbCrLf & _
+            "Installed Physical Memory (RAM): " & strInstalledRAM & vbCrLf & _
+            "Total Physical Memory: " & strTotalRAM & vbCrLf & _
+            "Available Physical Memory: " & strAvailRAM & vbCrLf & _
+            "Total Virtual Memory: " & strTotalVirtual & vbCrLf & _
+            "Available Virtual Memory: " & strAvailVirtual & vbCrLf & _
+            "Page File Space: " & strPageFileSize & vbCrLf & _
+            "Page File: " & strPageFilePath & vbCrLf & _
+            "Kernel DMA Protection: " & strKernelDMA & vbCrLf & _
+            "Virtualization-based security: " & strVBSStatus & vbCrLf & _
+            "VBS Required Security Props: " & strVBSReq & vbCrLf & _
+            "VBS Available Security Props: " & strVBSAvail & vbCrLf & _
+            "VBS Security Services Configured: " & strVBSSec & vbCrLf & _
+            "App Control for Business policy: " & strAppControl & vbCrLf & _
+            "App Control for Business user policy: " & strAppControlUser & vbCrLf & _
+            "SMM Isolation Level: " & strSMMIsolation & vbCrLf & _
+            "Windows Product Key: " & strProductKey & vbCrLf & _
+            "BIOS Serial Number: " & strBIOSSerial & vbCrLf & _
+            "Report Time: " & Now()
+
+' msgbox strBody
+' Call Outlook safely via PowerShell File System
+SendViaNewOutlook strRecipientEmail, strCcEmail, strSubject, strBody
 
 ' =========================================================================
 ' HELPER FUNCTIONS
 ' =========================================================================
 
-Sub SendViaOutlook(strTo, strSubj, strCC, strBodyText)
+Sub SendViaNewOutlook(strTo, strCC, strSubj, strBodyText)
     On Error Resume Next
-    Dim objOutlook, objMail
-    Set objOutlook = CreateObject("Outlook.Application")
+    Dim objFSO, strTempPath, strPSFile, objFile, strCommand
+    
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    strTempPath = objShell.ExpandEnvironmentStrings("%TEMP%")
+    strPSFile = strTempPath & "\send_mail_temp.ps1"
+    
+    ' Tạo file PowerShell mã hóa theo chuẩn EscapeDataString (%20 thay vì +)
+    Set objFile = objFSO.CreateTextFile(strPSFile, True, True)
+    
+    objFile.WriteLine "$to = '" & strTo & "'"
+    objFile.WriteLine "$cc = '" & strCC & "'"
+    objFile.WriteLine "$subject = '" & Replace(strSubj, "'", "''") & "'"
+    objFile.WriteLine "$body = @'"
+    objFile.WriteLine strBodyText
+    objFile.WriteLine "'@"
+    
+    ' Dùng EscapeDataString để giữ nguyên khoảng trắng (%20)
+    objFile.WriteLine "$encTo = [System.Uri]::EscapeDataString($to)"
+    objFile.WriteLine "$encCc = [System.Uri]::EscapeDataString($cc)"
+    objFile.WriteLine "$encSubj = [System.Uri]::EscapeDataString($subject)"
+    objFile.WriteLine "$encBody = [System.Uri]::EscapeDataString($body)"
+    
+    objFile.WriteLine "if ($cc -ne '') {"
+    objFile.WriteLine "    $uri = ""mailto:$($encTo)?cc=$($encCc)&subject=$($encSubj)&body=$($encBody)"""
+    objFile.WriteLine "} else {"
+    objFile.WriteLine "    $uri = ""mailto:$($encTo)?subject=$($encSubj)&body=$($encBody)"""
+    objFile.WriteLine "}"
+    objFile.WriteLine "Start-Process $uri"
+    objFile.Close
+    
+    ' Chạy file PowerShell ẩn
+    strCommand = "powershell.exe -ExecutionPolicy Bypass -NoProfile -File """ & strPSFile & """"
+    objShell.Run strCommand, 0, True
+    
+    ' Xóa file tạm
+    If objFSO.FileExists(strPSFile) Then objFSO.DeleteFile(strPSFile)
     
     If Err.Number <> 0 Then
-        WScript.Echo "Error: Microsoft Outlook is not installed or running."
+        WScript.Echo "Loi: " & Err.Description
         Err.Clear
-        Exit Sub
-    End If
-    
-    Set objMail = objOutlook.CreateItem(0)
-    With objMail
-        .To = strTo
-        .Subject = strSubj
-        .CC = strCC
-        .Body = strBodyText
-        .Send
-    End With
-    
-    If Err.Number <> 0 Then
-        WScript.Echo "Failed to send email: " & Err.Description
-        Err.Clear
-    Else
-        WScript.Echo "System information report successfully sent to " & strTo
+    ' Else
+    '     WScript.Echo "Da mo New Outlook và gửi thông tin máy cho bộ phận IT. Vui long kiem tra!"
     End If
     On Error GoTo 0
 End Sub
 
+' --- Function to Retrieve Outlook Email Address ---
 Function GetOutlookEmail()
     On Error Resume Next
     Dim objOutlook, objNamespace, i, strEmails
     Set objOutlook = CreateObject("Outlook.Application")
+    
     If Err.Number <> 0 Then
-        GetOutlookEmail = "Outlook not installed"
+        GetOutlookEmail = "Outlook not installed or not running"
         Err.Clear
         Exit Function
     End If
     
     Set objNamespace = objOutlook.GetNamespace("MAPI")
+    
     If objNamespace.Accounts.Count > 0 Then
         For i = 1 To objNamespace.Accounts.Count
             strEmails = strEmails & objNamespace.Accounts.Item(i).SmtpAddress & "; "
