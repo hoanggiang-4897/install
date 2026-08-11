@@ -160,11 +160,7 @@ On Error GoTo 0
 strProductKey = GetWindowsProductKey()
 
 ' =========================================================================
-<<<<<<< HEAD
-' ASSEMBLE REPORT & OPEN OUTLOOK
-=======
 ' ASSEMBLE REPORT & OPEN NEW OUTLOOK
->>>>>>> 58c4e66a28ca58a25f7eaecc829f20d04b488240
 ' =========================================================================
 Dim strSubject, strBody
 strSubject = "Full System Information Audit - " & strSystemName
