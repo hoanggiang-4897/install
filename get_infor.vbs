@@ -5,8 +5,7 @@ Option Explicit
 ' =========================================================================
 Dim strRecipientEmail, strCcEmail
 strRecipientEmail = "giang.nh@sclife.com.vn" ' Set destination email address
-' strCcEmail  = "NI.hq@sclife.com.vn" ' set cc email
-strCcEmail  = "" ' set cc email
+strCcEmail        = ""                      ' Set CC email address (e.g., "NI.hq@sclife.com.vn")
 
 ' =========================================================================
 ' MAIN SCRIPT
@@ -23,10 +22,9 @@ On Error Resume Next
 Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
 On Error GoTo 0
 
-' --- 1. User & Outlook Info ---
-Dim strLogonAccount, strOutlookEmail
+' --- 1. User Account Info ---
+Dim strLogonAccount
 strLogonAccount = objNetwork.UserDomain & "\" & objNetwork.UserName
-strOutlookEmail = GetOutlookEmail()
 
 ' --- 2. Operating System Info (Win32_OperatingSystem) ---
 Dim strOSName, strOSVersion, strOSDescription, strOSManufacturer
@@ -104,7 +102,6 @@ For Each objItem In colItems
 Next
 On Error GoTo 0
 
-' Hardware Abstraction Layer (HAL)
 strHALVersion = GetHALVersion()
 
 ' --- 5. BIOS Info (Win32_BIOS) ---
@@ -121,7 +118,6 @@ For Each objItem In colItems
 Next
 On Error GoTo 0
 
-' BIOS Mode & Secure Boot State
 strBIOSMode   = GetRegistryValue("HKLM\System\CurrentControlSet\Control\SecureBoot\State\UEFI", "UEFI", "Legacy / Unknown")
 strSecureBoot = GetSecureBootState()
 
@@ -164,7 +160,7 @@ On Error GoTo 0
 strProductKey = GetWindowsProductKey()
 
 ' =========================================================================
-' ASSEMBLE REPORT & SEND EMAIL
+' ASSEMBLE REPORT & OPEN NEW OUTLOOK
 ' =========================================================================
 Dim strSubject, strBody
 strSubject = "Full System Information Audit - " & strSystemName
@@ -196,7 +192,6 @@ strBody = "Item" & vbTab & vbTab & vbTab & "Value" & vbCrLf & _
           "Locale:" & vbTab & vbTab & vbTab & strLocale & vbCrLf & _
           "Hardware Abstraction Layer:" & vbTab & strHALVersion & vbCrLf & _
           "User Name:" & vbTab & vbTab & strLogonAccount & vbCrLf & _
-          "Outlook Email:" & vbTab & vbTab & strOutlookEmail & vbCrLf & _
           "Time Zone:" & vbTab & vbTab & strTimeZone & vbCrLf & _
           "Installed Physical Memory (RAM): " & strInstalledRAM & vbCrLf & _
           "Total Physical Memory:" & vbTab & strTotalRAM & vbCrLf & _
@@ -217,63 +212,55 @@ strBody = "Item" & vbTab & vbTab & vbTab & "Value" & vbCrLf & _
           "BIOS Serial Number:" & vbTab & strBIOSSerial & vbCrLf & _
           "Report Time:" & vbTab & vbTab & Now()
 
-' Send Email via Outlook COM
-SendViaOutlook strRecipientEmail, strSubject, strCcEmail, strBody
+' Open New Outlook Composition Window
+SendViaNewOutlook strRecipientEmail, strCcEmail, strSubject, strBody
 
 ' =========================================================================
 ' HELPER FUNCTIONS
 ' =========================================================================
 
-Sub SendViaOutlook(strTo, strSubj, strCC, strBodyText)
+Sub SendViaNewOutlook(strTo, strCC, strSubj, strBodyText)
     On Error Resume Next
-    Dim objOutlook, objMail
-    Set objOutlook = CreateObject("Outlook.Application")
+    Dim objFSO, strTempPath, strPSFile, objFile, strCommand
     
-    If Err.Number <> 0 Then
-        WScript.Echo "Error: Microsoft Outlook is not installed or running."
-        Err.Clear
-        Exit Sub
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    strTempPath = objShell.ExpandEnvironmentStrings("%TEMP%")
+    strPSFile = strTempPath & "\send_mail_temp.ps1"
+    
+    ' Generate PowerShell Script to trigger mailto protocol for New Outlook
+    Set objFile = objFSO.CreateTextFile(strPSFile, True, True)
+    
+    objFile.WriteLine "$to = [System.Uri]::EscapeDataString('" & strTo & "')"
+    objFile.WriteLine "$subject = [System.Uri]::EscapeDataString('" & strSubj & "')"
+    objFile.WriteLine "$body = [System.Uri]::EscapeDataString(@'"
+    objFile.WriteLine strBodyText
+    objFile.WriteLine "'@)"
+    
+    If strCC <> "" Then
+        objFile.WriteLine "$cc = [System.Uri]::EscapeDataString('" & strCC & "')"
+        objFile.WriteLine "$mailto = ""mailto:$to?cc=$cc&subject=$subject&body=$body"""
+    Else
+        objFile.WriteLine "$mailto = ""mailto:$to?subject=$subject&body=$body"""
     End If
     
-    Set objMail = objOutlook.CreateItem(0)
-    With objMail
-        .To = strTo
-        .Subject = strSubj
-        .CC = strCC
-        .Body = strBodyText
-        .Send
-    End With
+    objFile.WriteLine "Start-Process $mailto"
+    objFile.Close
+    
+    ' Run PowerShell hidden
+    strCommand = "powershell.exe -ExecutionPolicy Bypass -NoProfile -File """ & strPSFile & """"
+    objShell.Run strCommand, 0, True
+    
+    ' Clean up temp script file
+    If objFSO.FileExists(strPSFile) Then objFSO.DeleteFile(strPSFile)
     
     If Err.Number <> 0 Then
-        WScript.Echo "Failed to send email: " & Err.Description
+        WScript.Echo "Loi khi mo New Outlook: " & Err.Description
         Err.Clear
     Else
-        WScript.Echo "System information report successfully sent to " & strTo
+        WScript.Echo "Da mo giao dien New Outlook voi thong tin he thong. Vui long bam Send de gui!"
     End If
     On Error GoTo 0
 End Sub
-
-Function GetOutlookEmail()
-    On Error Resume Next
-    Dim objOutlook, objNamespace, i, strEmails
-    Set objOutlook = CreateObject("Outlook.Application")
-    If Err.Number <> 0 Then
-        GetOutlookEmail = "Outlook not installed"
-        Err.Clear
-        Exit Function
-    End If
-    
-    Set objNamespace = objOutlook.GetNamespace("MAPI")
-    If objNamespace.Accounts.Count > 0 Then
-        For i = 1 To objNamespace.Accounts.Count
-            strEmails = strEmails & objNamespace.Accounts.Item(i).SmtpAddress & "; "
-        Next
-        GetOutlookEmail = Left(strEmails, Len(strEmails) - 2)
-    Else
-        GetOutlookEmail = "No profile configured"
-    End If
-    On Error GoTo 0
-End Function
 
 Function GetHALVersion()
     On Error Resume Next
