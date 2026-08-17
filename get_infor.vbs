@@ -220,9 +220,64 @@ strBody =   "=== System Information ===" & vbCrLf & vbCrLf & _
             "BIOS Serial Number: " & strBIOSSerial & vbCrLf & _
             "Report Time: " & Now()
 
+
+
+' Save report to network share
+SaveReportToFile strBody
+
+
+'=========================================================================
+' Save report to local folder
+'=========================================================================
+Sub SaveReportToFile(strContent)
+    On Error Resume Next
+
+    Dim objFSO, objFile
+    Dim strFolder, strFile
+
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+
+    ' Folder lưu report
+    strFolder = "C:\Support"
+
+    ' Nếu chưa có folder thì tạo
+    If Not objFSO.FolderExists(strFolder) Then
+        objFSO.CreateFolder strFolder
+    End If
+
+    ' Tên file
+    strFile = strFolder & "\" & _
+              strSystemName & "_" & _
+              Year(Now) & _
+              Right("0" & Month(Now),2) & _
+              Right("0" & Day(Now),2) & "_" & _
+              Right("0" & Hour(Now),2) & _
+              Right("0" & Minute(Now),2) & _
+              Right("0" & Second(Now),2) & ".txt"
+
+    Set objFile = objFSO.CreateTextFile(strFile, True, True)
+
+    objFile.WriteLine strContent
+
+    objFile.Close
+
+    If Err.Number <> 0 Then
+        WScript.Echo "Loi luu file: " & Err.Description
+        Err.Clear
+    End If
+
+    Set objFile = Nothing
+    Set objFSO = Nothing
+
+    On Error GoTo 0
+
+End Sub
+
+
 ' msgbox strBody
 ' Call Outlook safely via PowerShell File System
 SendViaNewOutlook strRecipientEmail, strCcEmail, strSubject, strBody
+
 
 ' =========================================================================
 ' HELPER FUNCTIONS
