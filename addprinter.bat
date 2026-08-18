@@ -1,5 +1,5 @@
 @echo off
-title Ricoh Auto Setup - Fully Silent
+title Ricoh Auto Setup - Silent
 color 0A
 
 :: ==========================
@@ -18,6 +18,7 @@ set EXTRACT_DIR=%WORKDIR%\Extract
 :: DRIVER DOWNLOAD
 :: ==========================
 
+echo.
 echo Downloading Ricoh Driver...
 
 if not exist "%WORKDIR%" mkdir "%WORKDIR%"
@@ -31,32 +32,26 @@ if not exist "%DRIVER_EXE%" (
 )
 
 :: ==========================
-:: SILENT EXTRACTION (NO SETUP POPUP)
+:: WINRAR SILENT EXTRACTION
 :: ==========================
 
-echo Extracting Driver files only (skipping GUI setup)...
+echo.
+echo Extracting Driver using WinRAR SFX (Silent Mode)...
 
 if not exist "%EXTRACT_DIR%" mkdir "%EXTRACT_DIR%"
 
-:: Phương án 1: Dùng WinRAR giải nén chỉ lấy file (không khởi chạy RV_SETUP)
-if exist "%ProgramFiles%\WinRAR\WinRAR.exe" (
-    "%ProgramFiles%\WinRAR\WinRAR.exe" x -ibck -y "%DRIVER_EXE%" "%EXTRACT_DIR%\" >nul 2>&1
-) else (
-    :: Phương án 2: Dùng PowerShell giải nén trực tiếp file EXE dưới dạng ZIP/Archive
-    powershell -Command "Expand-Archive -Path '%DRIVER_EXE%' -DestinationPath '%EXTRACT_DIR%' -Force" >nul 2>&1
-)
-
-:: Tắt cưỡng chế nếu bộ tự giải nén cố tình kích hoạt RV_SETUP.exe
-taskkill /f /im RV_SETUP.exe >nul 2>&1
-taskkill /f /im Setup.exe >nul 2>&1
+:: Giải nén ngầm 100% bằng WinRAR SFX
+start /wait "" "%DRIVER_EXE%" /s /a /x"%EXTRACT_DIR%"
 
 :: ==========================
-:: INSTALL DRIVER TO WINDOWS
+:: INSTALL DRIVER TO WINDOWS STORE
 :: ==========================
 
-echo Registering INF Drivers into Windows Store...
+echo.
+echo Installing Driver to Driver Store...
 
 for /r "%EXTRACT_DIR%" %%f in (*.inf) do (
+    echo Installing INF: %%f
     pnputil /add-driver "%%f" /install >nul 2>&1
 )
 
@@ -64,10 +59,11 @@ for /r "%EXTRACT_DIR%" %%f in (*.inf) do (
 :: CREATE TCP/IP PORT
 :: ==========================
 
-echo Creating Printer Port (%PRINTER_IP%)...
+echo.
+echo Creating TCP/IP Printer Port (%PRINTER_IP%)...
 
 powershell -Command ^
-"$Port='%PRINTER_IP%'; ^
+"$Port='IP_%PRINTER_IP%'; ^
 if (!(Get-PrinterPort -Name $Port -ErrorAction SilentlyContinue)) { ^
     Add-PrinterPort -Name $Port -PrinterHostAddress '%PRINTER_IP%' ^
 }"
@@ -76,19 +72,19 @@ if (!(Get-PrinterPort -Name $Port -ErrorAction SilentlyContinue)) { ^
 :: CREATE PRINTER
 :: ==========================
 
-echo Creating Printer Object...
-timeout /t 3
+echo.
+echo Binding Driver and Creating Printer...
 
 powershell -Command "& { ^
     $drv = Get-PrinterDriver | Where-Object { $_.Name -like '*C4504*' -or $_.Name -like '*Ricoh*' -or $_.Name -like '*PCL*' } | Select-Object -First 1 -ExpandProperty Name; ^
     if ($drv) { ^
-        Add-Printer -Name '%PRINTER_NAME%' -DriverName $drv -PortName '%PRINTER_IP%'; ^
-        Write-Host 'SUCCESS: Printer added with driver:' $drv; ^
+        Add-Printer -Name '%PRINTER_NAME%' -DriverName $drv -PortName 'IP_%PRINTER_IP%'; ^
+        Write-Host 'Success! Driver matched: ' $drv; ^
     } else { ^
-        Write-Host 'ERROR: Could not match driver in Windows Store!'; ^
+        Write-Host 'Error: No matching driver found in Windows Store!'; ^
     } ^
 }"
-timeout /t 10
+
 :: ==========================
 :: DONE
 :: ==========================
@@ -97,6 +93,6 @@ echo.
 echo ========================================
 echo PRINTER NAME : %PRINTER_NAME%
 echo PRINTER IP   : %PRINTER_IP%
-echo STATUS       : INSTALLED SUCCESSFULLY
+echo PORT NAME    : IP_%PRINTER_IP%
+echo STATUS       : COMPLETED
 echo ========================================
-pause
