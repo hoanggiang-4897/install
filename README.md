@@ -22,6 +22,6 @@ driver link: https://support.ricoh.com/bb/html/dr_ut_e/rc3/model/mpc4504ex/mpc45
 --------------------------------------------------------------------------------------------------
 # SCAN SETUP - run script with powershell
 
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/Setup_Scan.bat" -Outfile "$env:TEMP\initiate_Setup.bat"; Start-Process "$env:TEMP\Setup_Scan.bat" -wait
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/Setup_Scan.bat" -Outfile "$env:TEMP\Setup_Scan.bat"; Start-Process "$env:TEMP\Setup_Scan.bat" -wait
 
 
