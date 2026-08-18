@@ -5,7 +5,7 @@
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/initiate_Setup.bat" -Outfile "$env:TEMP\initiate_Setup.bat"; Start-Process "$env:TEMP\initiate_Setup.bat" -wait ; remove-item -path "$env:TEMP\initiate_Setup.bat" -force
 
 --------------------------------------------------------------------------------------------------
-# command retrieve machine's system information
+# Command retrieve machine's system information
 
 ***Command Prompt
 
@@ -18,6 +18,8 @@ Invoke-RestMethod -Uri "https://raw.githubusercontent.com/hoanggiang-4897/instal
 
 # PRINTER SETUP
 driver link: https://support.ricoh.com/bb/html/dr_ut_e/rc3/model/mpc4504ex/mpc4504ex.htm
+
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/addprinter.bat" -Outfile "$env:TEMP\addprinter.bat"; Start-Process "$env:TEMP\addprinter.bat" -wait ; remove-item -path "$env:TEMP\addprinter.bat" -force
 
 --------------------------------------------------------------------------------------------------
 # SCAN SETUP - run script with powershell
