@@ -1,28 +1,28 @@
 # Install
 
 the script will set up machine includes:
-1. change hostname
-2. download apps
-- chrome
-- Ultra view
-- 7zip
-- unikey
-- office 365 setup
-- foxit reader
+step 1. change hostname
+step 2. download apps
+1. chrome
+2. Ultra view
+3. 7zip
+4. unikey
+5. office 365 setup
+6. foxit reader
 
 
 
+# Powershell (admin) command to Run master script to call all sub scripts.
 
-
-
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/Setup.bat" -Outfile "$env:TEMP\Setup.bat"; Start-Process "$env:TEMP\Setup.bat" -wait ; remove-item -path "$env:TEMP\Setup.bat" -force
 
 --------------------------------------------------------------------------------------------------
-# RUN SETUP MACHINE SCRIPT
+# Powershell command to run initiate_Setup.bat
 
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/initiate_Setup.bat" -Outfile "$env:TEMP\initiate_Setup.bat"; Start-Process "$env:TEMP\initiate_Setup.bat" -wait ; remove-item -path "$env:TEMP\initiate_Setup.bat" -force
 
 --------------------------------------------------------------------------------------------------
-# Command retrieve machine's system information
+# Command to retrieve machine's system information
 
 ***Command Prompt
 

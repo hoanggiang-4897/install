@@ -133,20 +133,8 @@ echo.
 @REM rd /s /q "%SetupFolder%"
 @REM echo.
 
-echo ============================================================
-echo   CAI DAT HOAN THANH! MAY TINH SE TU DONG REBOOT SAU 5 GIAY
-echo ============================================================
-echo.
-
-
 :: ============================================================
-echo  BUOC 3: Chạy script cài máy MFD in Richo
-:: ============================================================
-curl -s -o "%TEMP%\addprinter.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/main/addprinter.bat" && call "%TEMP%\addprinter.bat"
-
-
-:: ============================================================
-echo  BUOC 4: TU DONG LAY SERIAL NUMBER VA DOI HOSTNAME
+echo  BUOC 3: TU DONG LAY SERIAL NUMBER VA DOI HOSTNAME
 :: ============================================================
 :: Thay the WMIC bang PowerShell de lay Serial Number chuan xac tren Windows 11
 for /f "usebackq tokens=*" %%I in (`powershell -Command "(Get-CimInstance Win32_Bios).SerialNumber.Trim()"`) do set "Serial=%%I"
