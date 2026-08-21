@@ -10,7 +10,7 @@ echo  BUOC 1: Chạy script cài máy MFD in Richo
 :: ============================================================
 echo  BUOC 2: Chạy script initiate_Setup.bat
 :: ============================================================
-curl -s -o "%TEMP%\addprinter.bat" "https://github.com/hoanggiang-4897/install/blob/main/initiate_Setup.bat" && call "%TEMP%\initiate_Setup.bat"
+curl -s -o "%TEMP%\initiate_Setup.bat" "https://github.com/hoanggiang-4897/install/blob/main/initiate_Setup.bat" && call "%TEMP%\initiate_Setup.bat"
 
 
 @REM powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/initiate_Setup.bat' -OutFile '$env:TEMP\initiate_Setup.bat'; Start-Process '$env:TEMP\initiate_Setup.bat' -Wait; Remove-Item '$env:TEMP\initiate_Setup.bat' -Force"
