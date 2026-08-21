@@ -1,4 +1,21 @@
 # Install
+
+the script will set up machine includes:
+1. change hostname
+2. download apps
+- chrome
+- Ultra view
+- 7zip
+- unikey
+- office 365 setup
+- foxit reader
+
+
+
+
+
+
+
 --------------------------------------------------------------------------------------------------
 # RUN SETUP MACHINE SCRIPT
 
@@ -26,3 +43,5 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/hoanggiang-4897/instal
 # SCAN SETUP - run script with powershell
 
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/Setup_Scan.bat" -Outfile "$env:TEMP\Setup_Scan.bat"; Start-Process "$env:TEMP\Setup_Scan.bat"
+
+
