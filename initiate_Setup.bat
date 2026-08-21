@@ -67,7 +67,7 @@ echo.
 
 :: 1. Chrome (Sua lai lenh chay file .exe)
 echo *** Dang cai dat Google Chrome...
-start /wait "" "chrome_installer.exe" /silent /install
+start /wait "" "%SetupFolder%\chrome_installer.exe" /silent /install
 echo [OK] Chrome xong.
 echo.
 
@@ -79,7 +79,7 @@ echo.
 
 :: 3. 7-Zip
 echo *** Dang cai dat 7-Zip...
-start /wait "" "7z_setup.exe" /S
+start /wait "" "%SetupFolder%\7z_setup.exe" /S
 echo [OK] 7-Zip xong.
 echo.
 
@@ -101,11 +101,11 @@ powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut 
 echo [OK] UniKey xong.
 echo.
 
-:: 6. Microsoft 365
-echo *** Dang cai dat Microsoft 365 (Chay ngam hoan toan)...
-start /wait "" "setup_office.exe" /configure "configuration.xml"
-echo [OK] Microsoft 365 xong.
-echo.
+@REM :: 6. Microsoft 365
+@REM echo *** Dang cai dat Microsoft 365 (Chay ngam hoan toan)...
+@REM start /wait "" "setup_office.exe" /configure "configuration.xml"
+@REM echo [OK] Microsoft 365 xong.
+@REM echo.
 
 @REM :: 7. Microsoft Teams
 @REM echo [7/8] Dang cai dat Microsoft Teams...
@@ -121,7 +121,7 @@ echo.
 
 :: 8. cài Phần mềm FoxitPDF Reader202613_L10N_Setup_Prom_x64
 echo *** Dang cai dat FoxitPDF Reader202613_L10N_Setup_Prom_x64...
-start /wait "" "FoxitPDFReader202613_L10N_Setup_Prom_x64.exe" /S
+start /wait "" "%SetupFolder%\FoxitPDFReader202613_L10N_Setup_Prom_x64.exe" /quiet
 echo [OK] FoxitPDF Reader xong.
 echo.
 
