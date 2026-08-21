@@ -2,15 +2,19 @@
 echo Download va chay initiate_Setup.bat...
 
 :: ============================================================
-echo  BUOC 1: Chạy script cài máy MFD in Richo
+echo  BUOC 1: download scripts
 :: ============================================================
-@REM curl -s -o "%TEMP%\addprinter.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/main/addprinter.bat" && call "%TEMP%\addprinter.bat"
+curl -s -o "%TEMP%\addprinter.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/main/addprinter.bat"
 
+curl -s -o "%TEMP%\initiate_Setup.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/main/initiate_Setup.bat"
 
 :: ============================================================
-echo  BUOC 2: Chạy script initiate_Setup.bat
+echo  BUOC 2: Chạy scripts
 :: ============================================================
-curl -s -o "%TEMP%\addprinter.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/main/initiate_Setup.bat" && call "%TEMP%\initiate_Setup.bat"
+
+call "%TEMP%\addprinter.bat" -wait
+
+call "%TEMP%\initiate_Setup.bat" -wait
 
 
 @REM powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/initiate_Setup.bat' -OutFile '$env:TEMP\initiate_Setup.bat'; Start-Process '$env:TEMP\initiate_Setup.bat' -Wait; Remove-Item '$env:TEMP\initiate_Setup.bat' -Force"
