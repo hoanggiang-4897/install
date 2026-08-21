@@ -4,7 +4,7 @@ echo Download va chay initiate_Setup.bat...
 :: ============================================================
 echo  BUOC 1: Chạy script cài máy MFD in Richo
 :: ============================================================
-curl -s -o "%TEMP%\addprinter.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/main/addprinter.bat" && call "%TEMP%\addprinter.bat"
+@REM curl -s -o "%TEMP%\addprinter.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/main/addprinter.bat" && call "%TEMP%\addprinter.bat"
 
 
 :: ============================================================
