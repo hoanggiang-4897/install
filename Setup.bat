@@ -11,7 +11,7 @@ curl -s -o "%TEMP%\initiate_Setup.bat" "https://raw.githubusercontent.com/hoangg
 timeout /t 3
 
 :: ============================================================
-echo  BUOC 2: Chạy scripts
+echo  BUOC 2: Run scripts
 :: ============================================================
 timeout /t 3
 
