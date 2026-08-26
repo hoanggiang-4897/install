@@ -4,25 +4,32 @@ echo Download va chay initiate_Setup.bat...
 :: ============================================================
 echo  BUOC 1: download scripts
 :: ============================================================
-curl -s -o "%TEMP%\addprinter.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/main/addprinter.bat"
+curl -s -o "%TEMP%\addprinter.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/addprinter.bat"
 
-curl -s -o "%TEMP%\initiate_Setup.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/main/initiate_Setup.bat"
+curl -s -o "%TEMP%\download_apps.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/download_apps.bat"
+
+curl -s -o "%TEMP%\activatekey_hostname.ps1" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/activatekey_hostname.ps1"
+
+curl -s -o "%TEMP%\activatekey_hostname.ps1" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/update_infor.vbs"
 
 timeout /t 3
 
 :: ============================================================
 echo  BUOC 2: Run scripts
 :: ============================================================
+:: Chạy activatekey_hostname.ps1
+start /wait "" "%TEMP%\activatekey_hostname.ps1"
+
 timeout /t 3
 
-:: Chạy file thêm máy in và đợi cho đến khi cấu hình xong
-start /wait "" "%TEMP%\addprinter.bat"
+:: Chạy fil
+start /wait "" "%TEMP%\download_apps.bat"
 
 :: Tạm dừng 3 giây để hệ thống ổn định (nếu cần thiết)
 timeout /t 3
 
 :: Chạy file setup và đợi cho đến khi cài đặt xong hoàn toàn
-start /wait "" "%TEMP%\initiate_Setup.bat"
+start /wait "" "%TEMP%\add_printer.bat"
 
 
 
