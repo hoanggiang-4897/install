@@ -18,7 +18,7 @@ timeout /t 3
 echo  BUOC 2: Run scripts
 :: ============================================================
 :: Chạy activatekey_hostname.ps1
-start /wait "" "%TEMP%\activatekey_hostname.ps1"
+start /wait "" powershell.exe -ExecutionPolicy Bypass -File "%TEMP%\activatekey_hostname.ps1"
 
 timeout /t 3
 
