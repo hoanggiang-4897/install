@@ -15,9 +15,15 @@ echo  BUOC 2: Chạy scripts
 :: ============================================================
 timeout /t 3
 
-call "%TEMP%\addprinter.bat"  -wait
+:: Chạy file thêm máy in và đợi cho đến khi cấu hình xong
+start /wait "" "%TEMP%\addprinter.bat"
 
-call "%TEMP%\initiate_Setup.bat" -wait
+:: Tạm dừng 3 giây để hệ thống ổn định (nếu cần thiết)
+timeout /t 3
+
+:: Chạy file setup và đợi cho đến khi cài đặt xong hoàn toàn
+start /wait "" "%TEMP%\initiate_Setup.bat"
+
 
 
 @REM powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/initiate_Setup.bat' -OutFile '$env:TEMP\initiate_Setup.bat'; Start-Process '$env:TEMP\initiate_Setup.bat' -Wait; Remove-Item '$env:TEMP\initiate_Setup.bat' -Force"
