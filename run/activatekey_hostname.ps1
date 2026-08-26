@@ -1,4 +1,4 @@
-#Requires -RunAsAdministrator
+# Requires -RunAsAdministrator
 
 Add-Type -AssemblyName Microsoft.VisualBasic
 Add-Type -AssemblyName System.Windows.Forms

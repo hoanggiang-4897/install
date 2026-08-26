@@ -10,7 +10,7 @@ curl -s -o "%TEMP%\download_apps.bat" "https://raw.githubusercontent.com/hoanggi
 
 curl -s -o "%TEMP%\activatekey_hostname.ps1" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/activatekey_hostname.ps1"
 
-curl -s -o "%TEMP%\activatekey_hostname.ps1" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/update_infor.vbs"
+curl -s -o "%TEMP%\update_infor.vbs" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/update_infor.vbs"
 
 timeout /t 3
 
@@ -18,7 +18,8 @@ timeout /t 3
 echo  BUOC 2: Run scripts
 :: ============================================================
 :: Chạy activatekey_hostname.ps1
-start /wait "" powershell.exe -ExecutionPolicy Bypass -File "%TEMP%\activatekey_hostname.ps1"
+@REM start /wait "" powershell.exe -ExecutionPolicy Bypass -File "%TEMP%\activatekey_hostname.ps1"
+start /wait "" "%TEMP%\activatekey_hostname.ps1"
 
 timeout /t 3
 
