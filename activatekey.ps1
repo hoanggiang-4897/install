@@ -18,53 +18,6 @@ $ScriptPath = $MyInvocation.MyCommand.Path
 $KeyFile   = "$env:ProgramData\RetailKey.txt"
 
 # ----------------------------
-# STAGE 2 (AFTER REBOOT)
-# ----------------------------
-
-if ($args -contains "Continue") {
-
-    Write-Host "Post-reboot phase started..." -ForegroundColor Cyan
-
-    if (-not (Test-Path $KeyFile)) {
-        Write-Host "Retail key file not found." -ForegroundColor Red
-        exit 1
-    }
-
-    $RetailKey = (Get-Content $KeyFile -Raw).Trim()
-
-    Write-Host "Installing retail key..." -ForegroundColor Yellow
-
-    cscript.exe "$env:SystemRoot\System32\slmgr.vbs" /ipk $RetailKey
-
-    Start-Sleep -Seconds 5
-
-    Write-Host "Activating Windows..." -ForegroundColor Yellow
-
-    cscript.exe "$env:SystemRoot\System32\slmgr.vbs" /ato
-
-    Start-Sleep -Seconds 5
-
-    Write-Host "Removing scheduled task..." -ForegroundColor Yellow
-
-    Unregister-ScheduledTask `
-        -TaskName $TaskName `
-        -Confirm:$false `
-        -ErrorAction SilentlyContinue
-
-    Remove-Item $KeyFile -Force -ErrorAction SilentlyContinue
-
-    [System.Windows.Forms.MessageBox]::Show(
-        "Activation process completed.",
-        "Completed",
-        [System.Windows.Forms.MessageBoxButtons]::OK,
-        [System.Windows.Forms.MessageBoxIcon]::Information
-    ) | Out-Null
-
-    Write-Host "Completed." -ForegroundColor Green
-    exit
-}
-
-# ----------------------------
 # STAGE 1 (BEFORE REBOOT)
 # ----------------------------
 
@@ -137,4 +90,53 @@ else {
         [System.Windows.Forms.MessageBoxButtons]::OK,
         [System.Windows.Forms.MessageBoxIcon]::Warning
     ) | Out-Null
+}
+
+
+
+# ----------------------------
+# STAGE 2 (AFTER REBOOT)
+# ----------------------------
+
+if ($args -contains "Continue") {
+
+    Write-Host "Post-reboot phase started..." -ForegroundColor Cyan
+
+    if (-not (Test-Path $KeyFile)) {
+        Write-Host "Retail key file not found." -ForegroundColor Red
+        exit 1
+    }
+
+    $RetailKey = (Get-Content $KeyFile -Raw).Trim()
+
+    Write-Host "Installing retail key..." -ForegroundColor Yellow
+
+    cscript.exe "$env:SystemRoot\System32\slmgr.vbs" /ipk $RetailKey
+
+    Start-Sleep -Seconds 5
+
+    Write-Host "Activating Windows..." -ForegroundColor Yellow
+
+    cscript.exe "$env:SystemRoot\System32\slmgr.vbs" /ato
+
+    Start-Sleep -Seconds 5
+
+    Write-Host "Removing scheduled task..." -ForegroundColor Yellow
+
+    Unregister-ScheduledTask `
+        -TaskName $TaskName `
+        -Confirm:$false `
+        -ErrorAction SilentlyContinue
+
+    Remove-Item $KeyFile -Force -ErrorAction SilentlyContinue
+
+    [System.Windows.Forms.MessageBox]::Show(
+        "Activation process completed.",
+        "Completed",
+        [System.Windows.Forms.MessageBoxButtons]::OK,
+        [System.Windows.Forms.MessageBoxIcon]::Information
+    ) | Out-Null
+
+    Write-Host "Completed." -ForegroundColor Green
+    exit
 }
