@@ -8,11 +8,13 @@ curl -s -o "%TEMP%\addprinter.bat" "https://raw.githubusercontent.com/hoanggiang
 
 curl -s -o "%TEMP%\initiate_Setup.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/main/initiate_Setup.bat"
 
+timeout /t 3
 
 :: ============================================================
 echo  BUOC 2: Chạy scripts
 :: ============================================================
 timeout /t 3
+
 call "%TEMP%\addprinter.bat"  -wait
 
 call "%TEMP%\initiate_Setup.bat" -wait
