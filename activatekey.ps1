@@ -21,7 +21,7 @@ $RetailKey = [Microsoft.VisualBasic.Interaction]::InputBox(
     ""
 )
 
-if (:IsNullOrWhiteSpace($RetailKey))
+if ([string]:IsNullOrWhiteSpace($RetailKey))
 {
     [System.Windows.Forms.MessageBox]::Show(
         "Retail Key is required.",
