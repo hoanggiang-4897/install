@@ -8,7 +8,7 @@ Add-Type -AssemblyName System.Windows.Forms
 # =====================================================
 
 # Windows Pro Upgrade Key
-$UpgradeKey = "XXXXX-XXXXX-XXXXX-XXXXX-XXXXX"
+$UpgradeKey = "VK7JG-NPHTM-C97JM-9MPGT-3V66T"
 
 $KeyFile = "C:\Windows\Temp\retail.key"
 $PostScript = "C:\Windows\Temp\PostActivate.ps1"
