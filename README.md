@@ -1,5 +1,12 @@
 # Install
 
+## setup note
+1. activatekey_hostname.ps1 - run activatekey and change hostname.
+2. download_apps.bat - download and install all company apps.
+3. add_printer.bat - add current printer.
+4. update_infor.vbs - update the machine and user information and send email
+
+
 the script will set up machine includes:
 step 1. change hostname
 step 2. download apps
@@ -9,7 +16,6 @@ step 2. download apps
 4. unikey
 5. office 365 setup
 6. foxit reader
-
 
 
 # Powershell (admin) command to Run master script to call all sub scripts.
@@ -23,12 +29,6 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/hoanggiang-4897/instal
 
 --------------------------------------------------------------------------------------------------
 # Command to retrieve machine's system information
-
-***Command Prompt
-
-curl -s -o "%TEMP%\get_infor.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/main/get_infor.vbs" && call "%TEMP%\get_infor.vbs"
-
-***Powershell
 
 Invoke-RestMethod -Uri "https://raw.githubusercontent.com/hoanggiang-4897/install/main/get_infor.vbs" -OutFile "$env:TEMP\get_infor.vbs"; cscript //nologo "$env:TEMP\get_infor.vbs"
 

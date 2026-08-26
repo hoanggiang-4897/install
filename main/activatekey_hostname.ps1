@@ -47,14 +47,15 @@ $RetailKey | Set-Content -Path $KeyFile -Force
 $PostBootContent = @'
 Start-Sleep -Seconds 30
 
-# Enable all network adapters
+# Enable Wi-Fi
+
+netsh interface set interface name="Wi-Fi" admin=enable
+
+# Enable all adapters
 
 Get-NetAdapter | ForEach-Object {
     try {
-        Enable-NetAdapter `
-            -Name $_.Name `
-            -Confirm:$false `
-            -ErrorAction SilentlyContinue
+        Enable-NetAdapter -Name $_.Name -Confirm:$false -ErrorAction SilentlyContinue
     }
     catch {
     }
@@ -75,14 +76,13 @@ if (Test-Path $KeyFile)
     cscript.exe //nologo "$env:SystemRoot\System32\slmgr.vbs" /ato
 }
 
-# Cleanup
-
 Remove-Item $KeyFile -Force -ErrorAction SilentlyContinue
 
 schtasks /Delete /TN "WindowsRetailActivation" /F
 
 Remove-Item $MyInvocation.MyCommand.Path -Force -ErrorAction SilentlyContinue
 '@
+
 
 $PostBootContent | Set-Content `
     -Path $PostScript `
@@ -132,6 +132,52 @@ Start-Process `
     -Wait
 
 # =====================================================
+# CHANGE HOSTNAME
+# =====================================================
+
+try
+{
+    $Serial = (Get-CimInstance Win32_BIOS).SerialNumber.Trim()
+}
+catch
+{
+    $Serial = ""
+}
+
+if ([string]::IsNullOrWhiteSpace($Serial))
+{
+    $Serial = Get-Random -Minimum 10000 -Maximum 99999
+}
+
+# Loại bỏ ký tự không hợp lệ trong hostname
+$Serial = $Serial -replace '[^A-Za-z0-9]', ''
+
+$NewHostName = "VNHCM$Serial"
+
+Write-Host ""
+Write-Host "Current Hostname : $env:COMPUTERNAME"
+Write-Host "New Hostname     : $NewHostName"
+Write-Host ""
+
+if ($env:COMPUTERNAME -ne $NewHostName)
+{
+    try
+    {
+        Rename-Computer -NewName $NewHostName -Force
+
+        Write-Host "[OK] Hostname changed to $NewHostName"
+    }
+    catch
+    {
+        Write-Host "[ERROR] Failed to rename computer."
+    }
+}
+else
+{
+    Write-Host "[OK] Hostname already matches."
+}
+
+# =====================================================
 # ASK FOR RESTART
 # =====================================================
 
@@ -146,3 +192,5 @@ if ($result -eq [System.Windows.Forms.DialogResult]::Yes)
 {
     Restart-Computer -Force
 }
+
+
