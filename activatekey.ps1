@@ -1,19 +1,22 @@
-# =================================================================
-# Windows Home -> Pro -> Retail Activation
-# Run as Administrator
-# =================================================================
-
-# -------------------------------------------------
-# WINDOWS PRO UPGRADE KEY
-# -------------------------------------------------
-
-$UpgradeKey = "VK7JG-NPHTM-C97JM-9MPGT-3V66T"
-
-# -------------------------------------------------
-# ASK FOR RETAIL KEY
-# -------------------------------------------------
+#Requires -RunAsAdministrator
 
 Add-Type -AssemblyName Microsoft.VisualBasic
+Add-Type -AssemblyName System.Windows.Forms
+
+# =====================================================
+# CONFIG
+# =====================================================
+
+# Windows Pro Upgrade Key
+$UpgradeKey = "XXXXX-XXXXX-XXXXX-XXXXX-XXXXX"
+
+$KeyFile = "C:\Windows\Temp\retail.key"
+$PostScript = "C:\Windows\Temp\PostActivate.ps1"
+$TaskName = "WindowsRetailActivation"
+
+# =====================================================
+# INPUT RETAIL KEY
+# =====================================================
 
 $RetailKey = [Microsoft.VisualBasic.Interaction]::InputBox(
     "Enter Windows Pro Retail Product Key",
@@ -21,37 +24,40 @@ $RetailKey = [Microsoft.VisualBasic.Interaction]::InputBox(
     ""
 )
 
-if ([string]:IsNullOrWhiteSpace($RetailKey))
+if ([string]::IsNullOrWhiteSpace($RetailKey))
 {
     [System.Windows.Forms.MessageBox]::Show(
-        "Retail Key is required.",
-        "Activation"
+        "Retail Product Key is required.",
+        "Windows Activation"
     )
+
     exit
 }
 
-# -------------------------------------------------
-# SAVE RETAIL KEY FOR POST-REBOOT PROCESS
-# -------------------------------------------------
+# =====================================================
+# SAVE KEY
+# =====================================================
 
-$KeyFile = "C:\Windows\Temp\retail.key"
+$RetailKey | Set-Content -Path $KeyFile -Force
 
-$RetailKey | Set-Content $KeyFile -Force
+# =====================================================
+# CREATE POST-BOOT SCRIPT
+# =====================================================
 
-# -------------------------------------------------
-# CREATE POST REBOOT SCRIPT
-# -------------------------------------------------
+$PostBootContent = @'
+Start-Sleep -Seconds 30
 
-$PostActivateScript = @'
-Start-Sleep -Seconds 20
-
-# Enable network adapters
+# Enable all network adapters
 
 Get-NetAdapter | ForEach-Object {
     try {
-        Enable-NetAdapter -Name $_.Name -Confirm:$false -ErrorAction SilentlyContinue
+        Enable-NetAdapter `
+            -Name $_.Name `
+            -Confirm:$false `
+            -ErrorAction SilentlyContinue
     }
-    catch {}
+    catch {
+    }
 }
 
 Start-Sleep -Seconds 15
@@ -60,13 +66,13 @@ $KeyFile = "C:\Windows\Temp\retail.key"
 
 if (Test-Path $KeyFile)
 {
-    $RetailKey = (Get-Content $KeyFile).Trim()
+    $RetailKey = (Get-Content $KeyFile -Raw).Trim()
 
-    cscript.exe //nologo $env:SystemRoot\System32\slmgr.vbs /ipk $RetailKey
+    cscript.exe //nologo "$env:SystemRoot\System32\slmgr.vbs" /ipk $RetailKey
 
-    Start-Sleep -Seconds 5
+    Start-Sleep -Seconds 10
 
-    cscript.exe //nologo $env:SystemRoot\System32\slmgr.vbs /ato
+    cscript.exe //nologo "$env:SystemRoot\System32\slmgr.vbs" /ato
 }
 
 # Cleanup
@@ -78,51 +84,65 @@ schtasks /Delete /TN "WindowsRetailActivation" /F
 Remove-Item $MyInvocation.MyCommand.Path -Force -ErrorAction SilentlyContinue
 '@
 
-$PostScriptPath = "C:\Windows\Temp\PostActivate.ps1"
+$PostBootContent | Set-Content `
+    -Path $PostScript `
+    -Encoding UTF8 `
+    -Force
 
-$PostActivateScript | Set-Content $PostScriptPath -Encoding UTF8
-
-# -------------------------------------------------
+# =====================================================
 # CREATE SCHEDULED TASK
-# -------------------------------------------------
+# =====================================================
 
 schtasks /Create `
- /TN "WindowsRetailActivation" `
+ /TN $TaskName `
  /SC ONSTART `
  /RU SYSTEM `
  /RL HIGHEST `
- /TR "powershell.exe -ExecutionPolicy Bypass -File `"$PostScriptPath`"" `
+ /TR "powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$PostScript`"" `
  /F
 
-# -------------------------------------------------
-# DISCONNECT WIFI / NETWORK
-# -------------------------------------------------
+# =====================================================
+# DISCONNECT NETWORK
+# =====================================================
 
 Get-NetAdapter |
-Where-Object { $_.Status -eq "Up" } |
-Disable-NetAdapter -Confirm:$false
+Where-Object {$_.Status -eq "Up"} |
+ForEach-Object {
+    try {
+        Disable-NetAdapter `
+            -Name $_.Name `
+            -Confirm:$false `
+            -ErrorAction SilentlyContinue
+    }
+    catch {
+    }
+}
 
-# -------------------------------------------------
-# CHANGE HOME TO PRO
-# -------------------------------------------------
+# =====================================================
+# CHANGE HOME -> PRO
+# =====================================================
 
 Write-Host ""
-Write-Host "Installing Pro Upgrade Key..."
+Write-Host "Changing Windows Edition..."
 Write-Host ""
 
-changepk.exe /ProductKey $UpgradeKey
+Start-Process `
+    -FilePath "changepk.exe" `
+    -ArgumentList "/ProductKey $UpgradeKey" `
+    -Wait
 
-# -------------------------------------------------
-# ASK RESTART
-# -------------------------------------------------
+# =====================================================
+# ASK FOR RESTART
+# =====================================================
 
 $result = [System.Windows.Forms.MessageBox]::Show(
-    "Upgrade key installed.`nRestart now?",
+    "Upgrade completed.`r`nRestart now?",
     "Windows Activation",
-    "YesNo"
+    [System.Windows.Forms.MessageBoxButtons]::YesNo,
+    [System.Windows.Forms.MessageBoxIcon]::Question
 )
 
-if ($result -eq "Yes")
+if ($result -eq [System.Windows.Forms.DialogResult]::Yes)
 {
     Restart-Computer -Force
 }
