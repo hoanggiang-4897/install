@@ -49,7 +49,7 @@ echo [+] Dang tai UniKey (Chinh chu unikey.org)...
 curl -L -o "unikey_setup.zip" "https://www.unikey.org/assets/release/unikey46RC2-230919-win64.zip"
 
 echo [+] Dang tai Microsoft 365 Setup...
-curl -L -o "setup_office.exe" "https://go.microsoft.com/fwlink/?linkid=2102395"
+curl -L -o "setup_office.exe" "https://go.microsoft.com/fwlink/?linkid=2264705&amp;clcid=0x42a&amp;culture=vi-vn&amp;country=vn"
 
 echo [+] Dang tai FoxitPDF Reader202613_L10N_Setup_Prom_x64 Setup...
 curl -L -o FoxitPDFReader202613_L10N_Setup_Prom_x64.exe "https://cdn01.foxitsoftware.com/product/reader/desktop/win/2026.1.3/FoxitPDFReader202613_L10N_Setup_Prom_x64.exe"
@@ -125,42 +125,6 @@ start /wait "" "%SetupFolder%\FoxitPDFReader202613_L10N_Setup_Prom_x64.exe" /qui
 echo [OK] FoxitPDF Reader xong.
 echo.
 
-@REM :: ============================================================
-@REM echo  BUOC 4: DON DEP HE THONG NGHIEP VU & TU DONG REBOOT
-@REM echo ============================================================
-@REM echo Dang xoa file tam...
-@REM cd /
-@REM rd /s /q "%SetupFolder%"
-@REM echo.
-
-:: ============================================================
-echo  BUOC 3: TU DONG LAY SERIAL NUMBER VA DOI HOSTNAME
-:: ============================================================
-:: Thay the WMIC bang PowerShell de lay Serial Number chuan xac tren Windows 11
-for /f "usebackq tokens=*" %%I in (`powershell -Command "(Get-CimInstance Win32_Bios).SerialNumber.Trim()"`) do set "Serial=%%I"
-
-:: Neu khong lay duoc serial hoax chuoi rong, tu dong dung thoi gian de lam chuoi ngau nhien
-if "%Serial%"=="" (
-    set "Serial=%RANDOM%"
-)
-
-set "NewHostName=VNHCM%Serial%"
-echo Hostname hien tai: %COMPUTERNAME%
-echo Hostname moi se dat: %NewHostName%
-echo.
-
-if /i not "%COMPUTERNAME%"=="%NewHostName%" (
-    powershell -Command "Rename-Computer -NewName '%NewHostName%' -Force" >nul 2>&1
-    echo [OK] Da thiet lap doi ten may thanh %NewHostName%.
-) else (
-    echo [OK] Ten may da trung khop, bo qua doi ten.
-)
-echo ------------------------------------------------------------
-echo.
-
-
-
-@REM shutdown /r /t 5 /c "Tu dong khoi dong lai theo kich ban Setup de nhan Hostname moi"
 
 echo ============================================================
 echo   CAI DAT HOAN TAT
