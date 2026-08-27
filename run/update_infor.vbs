@@ -238,7 +238,7 @@ Sub SaveReportToFile(strContent)
     Set objFSO = CreateObject("Scripting.FileSystemObject")
 
     ' Folder lưu report
-    strFolder = "C:\Support"
+    strFolder = "\\VNHCMPF60MQE1\machine_logs"
 
     ' Nếu chưa có folder thì tạo
     If Not objFSO.FolderExists(strFolder) Then

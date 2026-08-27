@@ -1,41 +1,142 @@
+@REM Lần 1
+@REM ------------------------------------------------
+@REM 1. Download scripts
+@REM 2. Run activatekey_hostname.ps1
+@REM 3. Save state = STEP2
+@REM 4. Restart
+
+@REM Lần 2
+@REM ------------------------------------------------
+@REM 5. Auto run initiate_Setup.bat
+@REM 6. Run download_apps.bat
+@REM 7. Save state = STEP3
+@REM 8. Restart
+
+@REM Lần 3
+@REM ------------------------------------------------
+@REM 9. Auto run initiate_Setup.bat
+@REM 10. Run addprinter.bat
+@REM 11. Cleanup
+@REM 12. Hoàn tất
+
 @echo off
-echo Download va chay initiate_Setup.bat...
+setlocal
 
-:: ============================================================
-echo  BUOC 1: download scripts
-:: ============================================================
-curl -s -o "%TEMP%\addprinter.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/addprinter.bat"
+set TASKNAME=CompanySetup
+set STATEFILE=%TEMP%\CompanySetup.state
 
-curl -s -o "%TEMP%\download_apps.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/download_apps.bat"
+echo ==================================================
+echo Company Setup
+echo ==================================================
 
-curl -s -o "%TEMP%\activatekey_hostname.ps1" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/activatekey_hostname.ps1"
+:: --------------------------------------------------
+:: Download scripts (only first run)
+:: --------------------------------------------------
 
-curl -s -o "%TEMP%\update_infor.vbs" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/update_infor.vbs"
+if not exist "%STATEFILE%" (
 
-timeout /t 3
+    echo STEP 0 - Download scripts
+    echo add_printer
+    curl -L -o "%TEMP%\addprinter.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/add_printer.bat"
+    echo download_apps
+    curl -L -o "%TEMP%\download_apps.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/download_apps.bat"
+    echo activatekey_hostname
+    curl -L -o "%TEMP%\activatekey_hostname.ps1" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/activatekey_hostname.ps1"
+    echo update_infor
+    curl -L -o "%TEMP%\update_infor.vbs" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/update_infor.vbs"
+    echo change_hostname
+    curl -L -o "%TEMP%\change_hostname.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/change_hostname.vbs"
 
-:: ============================================================
-echo  BUOC 2: Run scripts
-:: ============================================================
-:: Chạy activatekey_hostname.ps1
-start /wait "" powershell.exe -ExecutionPolicy Bypass -File "%TEMP%\activatekey_hostname.ps1"
+    :: Create Task
+    schtasks /create ^
+        /tn "%TASKNAME%" ^
+        /sc onlogon ^
+        /rl highest ^
+        /tr "\"%~f0\"" ^
+        /f
 
+    echo STEP1 > "%STATEFILE%"
+)
 
-timeout /t 3
+:: --------------------------------------------------
+:: Read current state
+:: --------------------------------------------------
 
-:: Chạy fil
-start /wait "" "%TEMP%\download_apps.bat"
+set /p STEP=<"%STATEFILE%"
 
-:: Tạm dừng 3 giây để hệ thống ổn định (nếu cần thiết)
-timeout /t 3
+:: --------------------------------------------------
+:: STEP 1
+:: --------------------------------------------------
 
-:: Chạy file setup và đợi cho đến khi cài đặt xong hoàn toàn
-start /wait "" "%TEMP%\add_printer.bat"
+@REM if /I "%STEP%"=="STEP1" (
 
+@REM     echo.
+@REM     echo Running activatekey_hostname.ps1
+@REM     echo.
 
+@REM     powershell.exe ^
+@REM       -NoProfile ^
+@REM       -ExecutionPolicy Bypass ^
+@REM       -File "%TEMP%\activatekey_hostname.ps1"
 
-@REM powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/initiate_Setup.bat' -OutFile '$env:TEMP\initiate_Setup.bat'; Start-Process '$env:TEMP\initiate_Setup.bat' -Wait; Remove-Item '$env:TEMP\initiate_Setup.bat' -Force"
+@REM     echo STEP2 > "%STATEFILE%"
 
+@REM     echo.
+@REM     echo Restarting...
+@REM     timeout /t 5
 
-echo Hoan tat.
-pause
+@REM     shutdown /r /t 0
+
+@REM     exit
+@REM )
+
+:: --------------------------------------------------
+:: STEP 2
+:: --------------------------------------------------
+
+if /I "%STEP%"=="STEP2" (
+
+    echo.
+    echo Running download_apps.bat
+    echo.
+
+    start /wait "" "%TEMP%\download_apps.bat"
+
+    echo STEP3 > "%STATEFILE%"
+
+    @REM echo.
+    @REM echo Restarting...
+    @REM timeout /t 5
+
+    @REM shutdown /r /t 0
+
+    exit
+)
+
+:: --------------------------------------------------
+:: STEP 3
+:: --------------------------------------------------
+
+if /I "%STEP%"=="STEP3" (
+
+    echo.
+    echo Running addprinter.bat
+    echo.
+
+    start /wait "" "%TEMP%\addprinter.bat"
+
+    del "%STATEFILE%" /f /q
+
+    schtasks /delete ^
+        /tn "%TASKNAME%" ^
+        /f
+
+    echo.
+    echo ==========================
+    echo Setup Completed
+    echo ==========================
+
+    pause
+)
+
+endlocal
