@@ -101,11 +101,11 @@ powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut 
 echo [OK] UniKey xong.
 echo.
 
-@REM :: 6. Microsoft 365
-@REM echo *** Dang cai dat Microsoft 365 (Chay ngam hoan toan)...
-@REM start /wait "" "setup_office.exe" /configure "configuration.xml"
-@REM echo [OK] Microsoft 365 xong.
-@REM echo.
+:: 6. Microsoft 365
+echo *** Dang cai dat Microsoft 365...
+start /wait "" "setup_office.exe" /configure "configuration.xml"
+echo [OK] Microsoft 365 xong.
+echo.
 
 @REM :: 7. Microsoft Teams
 @REM echo [7/8] Dang cai dat Microsoft Teams...
@@ -113,11 +113,6 @@ echo.
 @REM echo [OK] Microsoft Teams xong.
 @REM echo.
 
-@REM :: 8. Phần mềm Base
-@REM echo [8/8] Dang cai dat Base Desktop...
-@REM start /wait "" "base_setup.exe" /S
-@REM echo [OK] Base Desktop xong.
-@REM echo.
 
 :: 8. cài Phần mềm FoxitPDF Reader202613_L10N_Setup_Prom_x64
 echo *** Dang cai dat FoxitPDF Reader202613_L10N_Setup_Prom_x64...
