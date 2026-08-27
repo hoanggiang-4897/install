@@ -1,5 +1,11 @@
 Option Explicit
 
+' Tự động yêu cầu quyền Administrator nếu chưa có
+If Not WScript.Arguments.Named.Exists("elevate") Then
+    CreateObject("Shell.Application").ShellExecute "wscript.exe", """" & WScript.ScriptFullName & """ /elevate", "", "runas", 1
+    WScript.Quit
+End If
+
 ' =========================================================================
 ' RECIPIENT CONFIGURATION
 ' =========================================================================
@@ -16,6 +22,17 @@ Dim strComputer
 strComputer = "."
 Set objNetwork = CreateObject("WScript.Network")
 Set objShell   = CreateObject("WScript.Shell")
+
+
+' Câu lệnh PowerShell 1: Bật Insecure Guest Logons
+cmd1 = "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command ""Set-SmbClientConfiguration -EnableInsecureGuestLogons $true -Force"""
+
+' Câu lệnh PowerShell 2: Tắt Require Security Signature
+cmd2 = "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command ""Set-SmbClientConfiguration -RequireSecuritySignature $false -Force"""
+
+' Thực thi lệnh (Số 0 ở cuối giúp chạy ẩn, không hiện cửa sổ đen flash lên)
+objShell.Run cmd1, 0, True
+objShell.Run cmd2, 0, True
 
 ' Connect to WMI Root
 On Error Resume Next
