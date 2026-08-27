@@ -37,7 +37,7 @@ if not exist "%STATEFILE%" (
 
     echo STEP 0 - Download scripts
     echo add_printer
-    curl -L -o "%TEMP%\addprinter.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/add_printer.bat"
+    curl -L -o "%TEMP%\add_printer.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/add_printer.bat"
     echo download_apps
     curl -L -o "%TEMP%\download_apps.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/download_apps.bat"
     echo activatekey_hostname
@@ -68,27 +68,27 @@ set /p STEP=<"%STATEFILE%"
 :: STEP 1
 :: --------------------------------------------------
 
-@REM if /I "%STEP%"=="STEP1" (
+if /I "%STEP%"=="STEP1" (
 
-@REM     echo.
-@REM     echo Running activatekey_hostname.ps1
-@REM     echo.
+    echo.
+    echo Running activatekey_hostname.ps1
+    echo.
 
-@REM     powershell.exe ^
-@REM       -NoProfile ^
-@REM       -ExecutionPolicy Bypass ^
-@REM       -File "%TEMP%\activatekey_hostname.ps1"
+    @REM powershell.exe ^
+    @REM   -NoProfile ^
+    @REM   -ExecutionPolicy Bypass ^
+    @REM   -File "%TEMP%\activatekey_hostname.ps1"
 
-@REM     echo STEP2 > "%STATEFILE%"
+    echo STEP2 > "%STATEFILE%"
 
-@REM     echo.
-@REM     echo Restarting...
-@REM     timeout /t 5
+    echo.
+    echo Restarting...
+    timeout /t 5
 
-@REM     shutdown /r /t 0
+    @REM shutdown /r /t 0
 
-@REM     exit
-@REM )
+    exit
+)
 
 :: --------------------------------------------------
 :: STEP 2
@@ -123,7 +123,7 @@ if /I "%STEP%"=="STEP3" (
     echo Running addprinter.bat
     echo.
 
-    start /wait "" "%TEMP%\addprinter.bat"
+    start /wait "" "%TEMP%\add_printer.bat"
 
     del "%STATEFILE%" /f /q
 
