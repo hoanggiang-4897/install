@@ -52,12 +52,12 @@ timeout /t 3
 :: Run scripts
 :: --------------------------------------------------
 
-yes | start /wait "" "%TEMP%\download_apps.bat"
+powershell -command "start-process ""$env:TEMP\download_apps.bat"""
 
 timeout /t 3
 
-yes | start /wait "" "%TEMP%\change_hostname.bat"
+powershell -command "start-process ""$env:TEMP\add_printer.bat"""
 
 timeout /t 3
 
-yes | start /wait "" "%TEMP%\add_printer.bat" 
+powershell -command "start-process ""$env:TEMP\change_hostname.bat"""
