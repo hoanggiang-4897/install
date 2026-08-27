@@ -250,12 +250,15 @@ Sub SaveReportToFile(strContent)
     On Error Resume Next
 
     Dim objFSO, objFile
-    Dim strFolder, strFile
+    Dim strFolder, strFile, strNetServer
 
     Set objFSO = CreateObject("Scripting.FileSystemObject")
 
     ' Folder lưu report
-    strFolder = "\\VNHCMPF60MQE1\machine_logs"
+    strNetServer = "\\VNHCMPF60MQE1"
+    strFolder = ""&strNetServer&"\machine_logs"
+    objShell.Run "cmd /c net use """ &strNetServer& """ /delete /y""""", 0, True
+    objShell.Run "cmd /c net use """ & strFolder & """ /user:guest """"", 0, True
 
     ' Nếu chưa có folder thì tạo
     If Not objFSO.FolderExists(strFolder) Then
