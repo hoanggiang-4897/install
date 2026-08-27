@@ -20,10 +20,6 @@
 @REM 12. Hoàn tất
 
 @echo off
-setlocal
-
-set TASKNAME=CompanySetup
-set STATEFILE=%TEMP%\CompanySetup.state
 
 echo ==================================================
 echo Company Setup
@@ -33,120 +29,29 @@ echo ==================================================
 :: Download scripts (only first run)
 :: --------------------------------------------------
 
-if not exist "%STATEFILE%" (
+echo STEP 0 - Download scripts
 
-    echo STEP 0 - Download scripts
-    echo add_printer
-    curl -L -o "%TEMP%\add_printer.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/add_printer.bat"
-    echo download_apps
-    curl -L -o "%TEMP%\download_apps.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/download_apps.bat"
-    echo activatekey_hostname
-    curl -L -o "%TEMP%\activatekey_hostname.ps1" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/activatekey_hostname.ps1"
-    echo update_infor
-    curl -L -o "%TEMP%\update_infor.vbs" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/update_infor.vbs"
-    echo change_hostname
-    curl -L -o "%TEMP%\change_hostname.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/change_hostname.vbs"
+echo add_printer
+curl -L -o "%TEMP%\add_printer.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/add_printer.bat"
 
-    :: --------------------------------------------------
-    :: Run scripts
-    :: --------------------------------------------------
+echo download_apps
+curl -L -o "%TEMP%\download_apps.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/download_apps.bat"
 
-    yes | start /wait "" "%TEMP%\download_apps.bat"
+echo activatekey_hostname
+curl -L -o "%TEMP%\activatekey_hostname.ps1" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/activatekey_hostname.ps1"
 
-    yes | start /wait "" "%TEMP%\change_hostname.bat"
+echo update_infor
+curl -L -o "%TEMP%\update_infor.vbs" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/update_infor.vbs"
 
-    yes | start /wait "" "%TEMP%\add_printer.bat" 
-
-    :: Create Task
-    schtasks /create ^
-        /tn "%TASKNAME%" ^
-        /sc onlogon ^
-        /rl highest ^
-        /tr "\"%~f0\"" ^
-        /f
-
-    echo STEP1 > "%STATEFILE%"
-)
+echo change_hostname
+curl -L -o "%TEMP%\change_hostname.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/change_hostname.vbs"
 
 :: --------------------------------------------------
-:: Read current state
+:: Run scripts
 :: --------------------------------------------------
 
-set /p STEP=<"%STATEFILE%"
+yes | start /wait "" "%TEMP%\download_apps.bat"
 
-:: --------------------------------------------------
-:: STEP 1
-:: --------------------------------------------------
+yes | start /wait "" "%TEMP%\change_hostname.bat"
 
-if /I "%STEP%"=="STEP1" (
-
-    echo.
-    echo Running activatekey_hostname.ps1
-    echo.
-
-    @REM powershell.exe ^
-    @REM   -NoProfile ^
-    @REM   -ExecutionPolicy Bypass ^
-    @REM   -File "%TEMP%\activatekey_hostname.ps1"
-
-    echo STEP2 > "%STATEFILE%"
-
-    echo.
-    echo Restarting...
-    timeout /t 5
-
-    @REM shutdown /r /t 0
-
-    exit
-)
-
-:: --------------------------------------------------
-:: STEP 2
-:: --------------------------------------------------
-
-if /I "%STEP%"=="STEP2" (
-
-    echo.
-    echo Running download_apps.bat
-    echo.
-
-    start /wait "" "%TEMP%\download_apps.bat"
-
-    echo STEP3 > "%STATEFILE%"
-
-    @REM echo.
-    @REM echo Restarting...
-    @REM timeout /t 5
-
-    @REM shutdown /r /t 0
-
-    exit
-)
-
-:: --------------------------------------------------
-:: STEP 3
-:: --------------------------------------------------
-
-if /I "%STEP%"=="STEP3" (
-
-    echo.
-    echo Running addprinter.bat
-    echo.
-
-    start /wait "" "%TEMP%\add_printer.bat"
-
-    del "%STATEFILE%" /f /q
-
-    schtasks /delete ^
-        /tn "%TASKNAME%" ^
-        /f
-
-    echo.
-    echo ==========================
-    echo Setup Completed
-    echo ==========================
-
-    pause
-)
-
-endlocal
+yes | start /wait "" "%TEMP%\add_printer.bat" 
