@@ -47,6 +47,16 @@ if not exist "%STATEFILE%" (
     echo change_hostname
     curl -L -o "%TEMP%\change_hostname.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/change_hostname.vbs"
 
+    :: --------------------------------------------------
+    :: Run scripts
+    :: --------------------------------------------------
+
+    yes | start /wait "" "%TEMP%\download_apps.bat"
+
+    yes | start /wait "" "%TEMP%\change_hostname.bat"
+
+    yes | start /wait "" "%TEMP%\add_printer.bat" 
+
     :: Create Task
     schtasks /create ^
         /tn "%TASKNAME%" ^
