@@ -46,12 +46,18 @@ curl -L -o "%TEMP%\update_infor.vbs" "https://raw.githubusercontent.com/hoanggia
 echo change_hostname
 curl -L -o "%TEMP%\change_hostname.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/change_hostname.vbs"
 
+
+timeout /t 3
 :: --------------------------------------------------
 :: Run scripts
 :: --------------------------------------------------
 
 yes | start /wait "" "%TEMP%\download_apps.bat"
 
+timeout /t 3
+
 yes | start /wait "" "%TEMP%\change_hostname.bat"
+
+timeout /t 3
 
 yes | start /wait "" "%TEMP%\add_printer.bat" 
