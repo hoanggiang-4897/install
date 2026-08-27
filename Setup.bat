@@ -52,6 +52,10 @@ timeout /t 3
 :: Run scripts
 :: --------------------------------------------------
 
+powershell -command "start-process ""$env:TEMP\change_hostname.bat"""
+
+timeout /t 3
+
 powershell -command "start-process ""$env:TEMP\download_apps.bat"""
 
 timeout /t 3
@@ -60,4 +64,4 @@ powershell -command "start-process ""$env:TEMP\add_printer.bat"""
 
 timeout /t 3
 
-powershell -command "start-process ""$env:TEMP\change_hostname.bat"""
+
