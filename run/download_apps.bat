@@ -103,7 +103,7 @@ echo.
 
 :: 6. Microsoft 365
 echo *** Dang cai dat Microsoft 365...
-start /wait "" "setup_office.exe" /configure "configuration.xml"
+start /wait "" "%SetupFolder%\setup_office.exe" /configure "configuration.xml"
 echo [OK] Microsoft 365 xong.
 echo.
 
