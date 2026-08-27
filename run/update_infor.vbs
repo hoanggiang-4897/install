@@ -16,7 +16,7 @@ strCcEmail        = ""                      ' Set CC email address (e.g., "NI.hq
 ' =========================================================================
 ' MAIN SCRIPT
 ' =========================================================================
-Dim objWMIService, colItems, objItem, objNetwork, objShell
+Dim objWMIService, colItems, objItem, objNetwork, objShell, cmd1, cmd2
 Dim strComputer
 
 strComputer = "."
