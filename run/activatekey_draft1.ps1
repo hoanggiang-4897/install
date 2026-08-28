@@ -193,10 +193,8 @@ Get-NetAdapter -Physical -ErrorAction SilentlyContinue |
 Where-Object Status -ne "Disabled" |
 ForEach-Object {
 
-    Disable-NetAdapter `
-        -Name $_.Name `
-        -Confirm:$false `
-        -ErrorAction SilentlyContinue
+    Disable-NetAdapter -name "Wi-Fi" -Confirm:$false 
+    # -ErrorAction SilentlyContinue
 }
 
 Start-Sleep -Seconds 5
@@ -210,11 +208,7 @@ if ($Edition -eq "Core")
     Write-Host ""
     Write-Host "Upgrading Windows Home to Pro..."
     Write-Host ""
-
-    Start-Process `
-        -FilePath "changepk.exe" `
-        -ArgumentList "/ProductKey $UpgradeKey" `
-        -Wait
+    changepk.exe /ProductKey $UpgradeKey
 }
 else
 {
@@ -227,14 +221,14 @@ else
 # RESTART PROMPT
 # =====================================================
 
-$result = [System.Windows.Forms.MessageBox]::Show(
-    "Upgrade completed.`r`n`r`nRestart now?",
-    "Windows Activation",
-    [System.Windows.Forms.MessageBoxButtons]::YesNo,
-    [System.Windows.Forms.MessageBoxIcon]::Question
-)
+# $result = [System.Windows.Forms.MessageBox]::Show(
+#     "Upgrade completed.`r`n`r`nRestart now?",
+#     "Windows Activation",
+#     [System.Windows.Forms.MessageBoxButtons]::YesNo,
+#     [System.Windows.Forms.MessageBoxIcon]::Question
+# )
 
-Stop-Transcript
+# Stop-Transcript
 
 # if ($result -eq [System.Windows.Forms.DialogResult]::Yes)
 # {
