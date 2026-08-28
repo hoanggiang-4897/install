@@ -236,7 +236,7 @@ $result = [System.Windows.Forms.MessageBox]::Show(
 
 Stop-Transcript
 
-if ($result -eq [System.Windows.Forms.DialogResult]::Yes)
-{
-    Restart-Computer -Force
-}
+# if ($result -eq [System.Windows.Forms.DialogResult]::Yes)
+# {
+#     Restart-Computer -Force
+# }
