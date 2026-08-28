@@ -10,10 +10,13 @@ Add-Type -AssemblyName System.Windows.Forms
 $UpgradeKey = "VK7JG-NPHTM-C97JM-9MPGT-3V66T"
 
 $TempFolder = "$env:windir\Temp"
+$KeyFile    = Join-Path $TempFolder "RetailKey.dat"
 $PostScript = Join-Path $TempFolder "PostUpgrade.ps1"
-$LogFile = Join-Path $TempFolder "EditionUpgrade.log"
+$LogFile    = Join-Path $TempFolder "EditionUpgrade.log"
 
-$TaskName = "WindowsEditionPostUpgrade"
+# Dùng Common Startup để chạy bất kể user nào đăng nhập trước
+$StartupFolder   = [Environment]::GetFolderPath('CommonStartup')
+$StartupShortcut = Join-Path $StartupFolder "PostUpgrade.lnk"
 
 Start-Transcript -Path $LogFile -Force
 
@@ -52,6 +55,15 @@ Set-Content $KeyFile -Force
 # =====================================================
 
 $PostBootContent = @"
+# ---- Tu nang quyen (Run as Administrator) neu chua co ----
+if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
+{
+    Start-Process powershell.exe -ArgumentList '-ExecutionPolicy Bypass -WindowStyle Hidden -File "`$PSCommandPath"' -Verb RunAs
+    exit
+}
+
+`$KeyFile         = "$KeyFile"
+`$StartupShortcut = "$StartupShortcut"
 
 Start-Sleep -Seconds 20
 
@@ -92,7 +104,7 @@ try
     {
         Write-Output "Internet connection timeout."
     }
-    
+
     if (Test-Path `$KeyFile)
     {
         `$SecureKey = Get-Content `$KeyFile -Raw |
@@ -115,9 +127,7 @@ try
 catch
 {
     Write-Output `$_.Exception.Message
-}
 
-{
     Write-EventLog `
         -LogName Application `
         -Source "Windows Error Reporting" `
@@ -126,23 +136,12 @@ catch
         -Message `$_.Exception.Message `
         -ErrorAction SilentlyContinue
 }
-
-Remove-Item `$KeyFile -Force -ErrorAction SilentlyContinue
-
-try
+finally
 {
-    Unregister-ScheduledTask `
-        -TaskName '$TaskName' `
-        -Confirm:`$false `
-        -ErrorAction SilentlyContinue
+    Remove-Item `$KeyFile -Force -ErrorAction SilentlyContinue
+    Remove-Item `$StartupShortcut -Force -ErrorAction SilentlyContinue
+    Remove-Item `$MyInvocation.MyCommand.Path -Force -ErrorAction SilentlyContinue
 }
-catch
-{
-}
-
-Remove-Item `$MyInvocation.MyCommand.Path `
-    -Force `
-    -ErrorAction SilentlyContinue
 
 "@
 
@@ -153,33 +152,23 @@ Set-Content `
     -Force
 
 # =====================================================
-# CREATE SCHEDULED TASK
+# TAO SHORTCUT TRONG STARTUP FOLDER
+# (thay the Scheduled Task - tu chay khi dang nhap, tu xoa sau khi xong)
 # =====================================================
 
-try
+if (Test-Path $StartupShortcut)
 {
-    Unregister-ScheduledTask `
-        -TaskName $TaskName `
-        -Confirm:$false `
-        -ErrorAction SilentlyContinue
-}
-catch
-{
+    Remove-Item $StartupShortcut -Force -ErrorAction SilentlyContinue
 }
 
-$Action = New-ScheduledTaskAction `
-    -Execute "powershell.exe" `
-    -Argument "-ExecutionPolicy Bypass -WindowStyle Hidden -File `"$PostScript`""
-
-$Trigger = New-ScheduledTaskTrigger -AtStartup
-
-Register-ScheduledTask `
-    -TaskName $TaskName `
-    -Action $Action `
-    -Trigger $Trigger `
-    -User "SYSTEM" `
-    -RunLevel Highest `
-    -Force | Out-Null
+$WshShell = New-Object -ComObject WScript.Shell
+$Shortcut = $WshShell.CreateShortcut($StartupShortcut)
+$Shortcut.TargetPath       = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
+$Shortcut.Arguments        = "-ExecutionPolicy Bypass -WindowStyle Hidden -File `"$PostScript`""
+$Shortcut.WorkingDirectory = $TempFolder
+$Shortcut.WindowStyle      = 7   # Minimized
+$Shortcut.Description      = "Post-upgrade activation task"
+$Shortcut.Save()
 
 # =====================================================
 # CHECK WINDOWS EDITION
