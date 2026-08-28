@@ -10,11 +10,10 @@ Add-Type -AssemblyName System.Windows.Forms
 $UpgradeKey = "VK7JG-NPHTM-C97JM-9MPGT-3V66T"
 
 $TempFolder = "$env:windir\Temp"
-$KeyFile = Join-Path $TempFolder "retail.key"
-$PostScript = Join-Path $TempFolder "PostActivate.ps1"
-$LogFile = Join-Path $TempFolder "Activation.log"
+$PostScript = Join-Path $TempFolder "PostUpgrade.ps1"
+$LogFile = Join-Path $TempFolder "EditionUpgrade.log"
 
-$TaskName = "WindowsRetailActivation"
+$TaskName = "WindowsEditionPostUpgrade"
 
 Start-Transcript -Path $LogFile -Force
 
@@ -28,7 +27,7 @@ $RetailKey = [Microsoft.VisualBasic.Interaction]::InputBox(
     ""
 )
 
-if (:IsNullOrWhiteSpace($RetailKey))
+if ([string]::IsNullOrWhiteSpace($RetailKey))
 {
     [System.Windows.Forms.MessageBox]::Show(
         "Retail Product Key is required.",
@@ -53,15 +52,27 @@ Set-Content $KeyFile -Force
 # =====================================================
 
 $PostBootContent = @"
-Start-Sleep -Seconds 20
 
-`$KeyFile = '$KeyFile'
+Start-Sleep -Seconds 20
 
 try
 {
-    # Wait network max 60 sec
+    Write-Output "Enabling network adapters..."
 
-    `$Timeout = 60
+    Get-NetAdapter -Physical -ErrorAction SilentlyContinue |
+    ForEach-Object {
+
+        Enable-NetAdapter `
+            -Name `$_.Name `
+            -Confirm:`$false `
+            -ErrorAction SilentlyContinue
+    }
+
+    Start-Sleep -Seconds 10
+
+    Write-Output "Waiting for internet connection..."
+
+    `$Timeout = 120
     `$Elapsed = 0
 
     while (
@@ -73,6 +84,15 @@ try
         `$Elapsed += 5
     }
 
+    if (`$Elapsed -lt `$Timeout)
+    {
+        Write-Output "Internet connection detected."
+    }
+    else
+    {
+        Write-Output "Internet connection timeout."
+    }
+    
     if (Test-Path `$KeyFile)
     {
         `$SecureKey = Get-Content `$KeyFile -Raw |
@@ -94,6 +114,10 @@ try
 }
 catch
 {
+    Write-Output `$_.Exception.Message
+}
+
+{
     Write-EventLog `
         -LogName Application `
         -Source "Windows Error Reporting" `
@@ -112,11 +136,14 @@ try
         -Confirm:`$false `
         -ErrorAction SilentlyContinue
 }
-catch {}
+catch
+{
+}
 
 Remove-Item `$MyInvocation.MyCommand.Path `
     -Force `
     -ErrorAction SilentlyContinue
+
 "@
 
 $PostBootContent |
@@ -136,7 +163,9 @@ try
         -Confirm:$false `
         -ErrorAction SilentlyContinue
 }
-catch {}
+catch
+{
+}
 
 $Action = New-ScheduledTaskAction `
     -Execute "powershell.exe" `
@@ -158,7 +187,7 @@ Register-ScheduledTask `
 
 $Edition = (
     Get-ItemProperty `
-    "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+        "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
 ).EditionID
 
 Write-Host ""
@@ -166,12 +195,32 @@ Write-Host "Current Edition : $Edition"
 Write-Host ""
 
 # =====================================================
-# UPGRADE HOME => PRO
+# DISABLE NETWORK BEFORE UPGRADE
+# =====================================================
+
+Write-Host "Disabling physical network adapters..."
+
+Get-NetAdapter -Physical -ErrorAction SilentlyContinue |
+Where-Object Status -ne "Disabled" |
+ForEach-Object {
+
+    Disable-NetAdapter `
+        -Name $_.Name `
+        -Confirm:$false `
+        -ErrorAction SilentlyContinue
+}
+
+Start-Sleep -Seconds 5
+
+# =====================================================
+# UPGRADE HOME -> PRO
 # =====================================================
 
 if ($Edition -eq "Core")
 {
+    Write-Host ""
     Write-Host "Upgrading Windows Home to Pro..."
+    Write-Host ""
 
     Start-Process `
         -FilePath "changepk.exe" `
@@ -180,7 +229,9 @@ if ($Edition -eq "Core")
 }
 else
 {
+    Write-Host ""
     Write-Host "Windows is already Pro or higher."
+    Write-Host ""
 }
 
 # =====================================================
