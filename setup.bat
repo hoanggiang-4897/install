@@ -164,7 +164,7 @@ for %%A in (%CHOICE%) do (
 
     if "%%A"=="6" (
         echo Running Update Info...
-        cscript //nologo "%TEMP%\update_infor.vbs"
+        powershell -command "start-process ""$env:TEMP\update_infor.vbs""" -wait "
     )
     
     if "%%A"=="7" (
@@ -191,7 +191,7 @@ for %%A in (%CHOICE%) do (
 
         echo =====================================
         echo Running Update Info...
-        cscript //nologo "%TEMP%\update_infor.vbs"
+        powershell -command "start-process ""$env:TEMP\update_infor.vbs""" -wait "
     )
 )
 
