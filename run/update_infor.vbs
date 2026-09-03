@@ -185,8 +185,20 @@ strSubject = "Full System Information Audit - " & strSystemName
 
 Dim strOutlookEmail, strLocalusers, intResult
 
-'get local users information.
+Dim arrLines, line, strUserName
+
 strLocalusers = GetLocalUsersInfo()
+
+arrLines = Split(strLocalusers, vbCrLf)
+
+For Each line In arrLines
+    If InStr(line, "User Name :") > 0 Then
+        strUserName = Trim(Replace(line, "User Name :", ""))
+        Exit For
+    End If
+Next
+
+' MsgBox strUserName
 
 'get license information.
 Dim strLicenseInfo
@@ -307,12 +319,10 @@ Sub SaveReportToFile(strContent)
     ' Tên file
     strFile = strFolder & "\" & _
               strSystemName & "_" & _
+              strUserName & "_" & _
               Year(Now) & _
               Right("0" & Month(Now),2) & _
-              Right("0" & Day(Now),2) & "_" & _
-              Right("0" & Hour(Now),2) & _
-              Right("0" & Minute(Now),2) & _
-              Right("0" & Second(Now),2) & ".txt"
+              Right("0" & Day(Now),2) & ".txt"
 
     Set objFile = objFSO.CreateTextFile(strFile, True, True)
 
@@ -550,7 +560,7 @@ Function GetLocalUsersInfo()
     For Each objUser In colUsers
 
         Select Case LCase(objUser.Name)
-            Case "administrator", "defaultaccount", "guest", "wdagutilityaccount"
+            Case "administrator", "defaultaccount", "guest", "wdagutilityaccount", "accountdo", "scan_acc"
                 ' Skip
 
             Case Else
