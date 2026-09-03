@@ -66,7 +66,7 @@ powershell -command "start-process ""$env:TEMP\download_apps.bat"""
 
 timeout /t 3
 
-powershell -command "start-process ""$env:TEMP\add_printer.bat"""
+powershell -command "start-process ""$env:TEMP\add_printer.bat""" -wait "
 
 timeout /t 3
 
@@ -74,6 +74,7 @@ timeout /t 3
 echo STEP FINAL - Cleanup scripts
 
 for %%F in (
+    setup.bat
     add_printer.bat
     download_apps.bat
     activatekey_hostname.ps1
