@@ -185,20 +185,8 @@ strSubject = "Full System Information Audit - " & strSystemName
 
 Dim strOutlookEmail, strLocalusers, intResult
 
-Dim arrLines, line, strUserName
-
+'get local users information.
 strLocalusers = GetLocalUsersInfo()
-
-arrLines = Split(strLocalusers, vbCrLf)
-
-For Each line In arrLines
-    If InStr(line, "User Name :") > 0 Then
-        strUserName = Trim(Replace(line, "User Name :", ""))
-        Exit For
-    End If
-Next
-
-' MsgBox strUserName
 
 'get license information.
 Dim strLicenseInfo
@@ -302,6 +290,23 @@ Sub SaveReportToFile(strContent)
 
     Dim objFSO, objFile
     Dim strFolder, strFile, strNetServer
+
+
+    Dim strInfor
+    Dim arrLines
+    Dim line
+    Dim strUserName
+
+    strInfor = GetLocalUsersInfo()
+
+    arrLines = Split(strInfor, vbCrLf)
+
+    For Each line In arrLines
+        If InStr(line, "User Name :") > 0 Then
+            strUserName = Trim(Replace(line, "User Name :", ""))
+            Exit For
+        End If
+    Next
 
     Set objFSO = CreateObject("Scripting.FileSystemObject")
 
