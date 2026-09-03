@@ -186,15 +186,16 @@ strSubject = "Full System Information Audit - " & strSystemName
 ' ============================================================================
 ' get user mailbox
 ' ============================================================================
-Dim strOutlookEmail
+Dim strOutlookEmail, strLocalusers
 ' 5. Outlook Email Address (if configured)
 strOutlookEmail = GetOutlookEmail()
+strLocalusers = GetLocalUsersInfo()
 
 strBody =   "=== System Information ===" & vbCrLf & vbCrLf & _
+            "BIOS Serial Number: " & strBIOSSerial & vbCrLf & _
             "Email address: " & strOutlookEmail & vbCrLf & _
             "OS Name: " & strOSName & vbCrLf & _
             "Version: " & strOSVersion & vbCrLf & _
-            "Other OS Description: " & strOSDescription & vbCrLf & _
             "OS Manufacturer: " & strOSManufacturer & vbCrLf & _
             "System Name: " & strSystemName & vbCrLf & _
             "System Manufacturer: " & strSysManufacturer & vbCrLf & _
@@ -202,42 +203,42 @@ strBody =   "=== System Information ===" & vbCrLf & vbCrLf & _
             "System Type: " & strSysType & vbCrLf & _
             "System SKU: " & strSysSKU & vbCrLf & _
             "Processor: " & strProcessor & vbCrLf & _
-            "BIOS Version/Date: " & strBIOSVersion & vbCrLf & _
-            "SMBIOS Version: " & strSMBIOSVersion & vbCrLf & _
-            "Embedded Controller Version: " & strECVersion & vbCrLf & _
-            "BIOS Mode: " & strBIOSMode & vbCrLf & _
-            "BaseBoard Manufacturer: " & strBoardManufacturer & vbCrLf & _
-            "BaseBoard Product: " & strBoardProduct & vbCrLf & _
-            "BaseBoard Version: " & strBoardVersion & vbCrLf & _
-            "Platform Role: " & strRole & vbCrLf & _
-            "Secure Boot State: " & strSecureBoot & vbCrLf & _
-            "Windows Directory: " & strWinDir & vbCrLf & _
-            "System Directory: " & strSysDir & vbCrLf & _
-            "Boot Device: " & strBootDevice & vbCrLf & _
-            "Locale: " & strLocale & vbCrLf & _
-            "Hardware Abstraction Layer: " & strHALVersion & vbCrLf & _
-            "User Name: " & strLogonAccount & vbCrLf & _
-            "Time Zone: " & strTimeZone & vbCrLf & _
             "Installed Physical Memory (RAM): " & strInstalledRAM & vbCrLf & _
             "Total Physical Memory: " & strTotalRAM & vbCrLf & _
             "Available Physical Memory: " & strAvailRAM & vbCrLf & _
             "Total Virtual Memory: " & strTotalVirtual & vbCrLf & _
             "Available Virtual Memory: " & strAvailVirtual & vbCrLf & _
-            "Page File Space: " & strPageFileSize & vbCrLf & _
-            "Page File: " & strPageFilePath & vbCrLf & _
-            "Kernel DMA Protection: " & strKernelDMA & vbCrLf & _
-            "Virtualization-based security: " & strVBSStatus & vbCrLf & _
-            "VBS Required Security Props: " & strVBSReq & vbCrLf & _
-            "VBS Available Security Props: " & strVBSAvail & vbCrLf & _
-            "VBS Security Services Configured: " & strVBSSec & vbCrLf & _
-            "App Control for Business policy: " & strAppControl & vbCrLf & _
-            "App Control for Business user policy: " & strAppControlUser & vbCrLf & _
-            "SMM Isolation Level: " & strSMMIsolation & vbCrLf & _
+            "BIOS Version/Date: " & strBIOSVersion & vbCrLf & _
+            "SMBIOS Version: " & strSMBIOSVersion & vbCrLf & _
+            "Embedded Controller Version: " & strECVersion & vbCrLf & _
+            "Locale: " & strLocale & vbCrLf & _
+            "Hardware Abstraction Layer: " & strHALVersion & vbCrLf & _
+            "User Name: " & strLocalusers & vbCrLf & _
+            "Time Zone: " & strTimeZone & vbCrLf & _
             "Windows Product Key: " & strProductKey & vbCrLf & _
-            "BIOS Serial Number: " & strBIOSSerial & vbCrLf & _
             "Report Time: " & Now()
-
-
+            
+            '------------------------------------------------------------------
+            ' "Other OS Description: " & strOSDescription & vbCrLf & _
+            ' "BIOS Mode: " & strBIOSMode & vbCrLf & _
+            ' "BaseBoard Manufacturer: " & strBoardManufacturer & vbCrLf & _
+            ' "BaseBoard Product: " & strBoardProduct & vbCrLf & _
+            ' "BaseBoard Version: " & strBoardVersion & vbCrLf & _
+            ' "Platform Role: " & strRole & vbCrLf & _
+            ' "Secure Boot State: " & strSecureBoot & vbCrLf & _
+            ' "Windows Directory: " & strWinDir & vbCrLf & _
+            ' "System Directory: " & strSysDir & vbCrLf & _
+            ' "Boot Device: " & strBootDevice & vbCrLf & _
+            ' "Page File Space: " & strPageFileSize & vbCrLf & _
+            ' "Page File: " & strPageFilePath & vbCrLf & _
+            ' "Kernel DMA Protection: " & strKernelDMA & vbCrLf & _
+            ' "Virtualization-based security: " & strVBSStatus & vbCrLf & _
+            ' "VBS Required Security Props: " & strVBSReq & vbCrLf & _
+            ' "VBS Available Security Props: " & strVBSAvail & vbCrLf & _
+            ' "VBS Security Services Configured: " & strVBSSec & vbCrLf & _
+            ' "App Control for Business policy: " & strAppControl & vbCrLf & _
+            ' "App Control for Business user policy: " & strAppControlUser & vbCrLf & _
+            ' "SMM Isolation Level: " & strSMMIsolation & vbCrLf & _
 
 ' Save report to network share
 SaveReportToFile strBody
@@ -496,4 +497,44 @@ Function DecodeProductKey(digitalID)
     DecodeProductKey = Mid(keyChars, 1, 5) & "-" & Mid(keyChars, 6, 5) & "-" & _
                        Mid(keyChars, 11, 5) & "-" & Mid(keyChars, 16, 5) & "-" & _
                        Mid(keyChars, 21, 5)
+End Function
+
+Function GetLocalUsersInfo()
+
+    Dim strInfo
+    Dim objWMIService
+    Dim colUsers
+    Dim objUser
+
+    strInfo = ""
+
+    Set objWMIService = GetObject("winmgmts:\\.\root\cimv2")
+
+    Set colUsers = objWMIService.ExecQuery( _
+        "SELECT * FROM Win32_UserAccount WHERE LocalAccount = TRUE")
+
+    For Each objUser In colUsers
+
+        Select Case LCase(objUser.Name)
+            Case "administrator", "defaultaccount", "guest", "wdagutilityaccount"
+                ' Skip
+
+            Case Else
+                strInfo = strInfo & _
+                    "User Name : " & objUser.Name & vbCrLf & _
+                    "Full Name : " & objUser.FullName & vbCrLf & _
+                    "Disabled  : " & objUser.Disabled & vbCrLf & _
+                    "Lockout   : " & objUser.Lockout & vbCrLf & _
+                    "SID       : " & objUser.SID & vbCrLf & _
+                    String(40, "-") & vbCrLf
+        End Select
+
+    Next
+
+    If strInfo = "" Then
+        strInfo = "Không tìm thấy local user nào."
+    End If
+
+    GetLocalUsersInfo = strInfo
+
 End Function
