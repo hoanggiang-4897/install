@@ -204,18 +204,21 @@ for %%A in (%CHOICE%) do (
 timeout /t 30 
 
 echo.
-echo STEP FINAL - Cleanup scripts
+set /p CONFIRM="Do you want to delete all scripts? (Y/N): "
 
-for %%F in (
-    add_printer.bat
-    download_apps.bat
-    activatekey_hostname.ps1
-    update_infor.vbs
-    change_hostname.bat
-    set_account.bat
-) do (
-    if exist "%TEMP%\%%F" del /f /q "%TEMP%\%%F"
+if /i "%CONFIRM%"=="Y" (
+    for %%F in (
+        setup.bat
+        add_printer.bat
+        download_apps.bat
+        activatekey_hostname.ps1
+        update_infor.vbs
+        change_hostname.bat
+        set_account.bat
+    ) do (
+        if exist "%TEMP%\%%F" del /f /q "%TEMP%\%%F"
+    )
+    echo Cleanup completed.
+) else (
+    echo Bo qua cleanup.
 )
-
-echo.
-echo Cleanup completed.
