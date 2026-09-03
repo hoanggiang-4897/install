@@ -46,12 +46,17 @@ curl -L -o "%TEMP%\update_infor.vbs" "https://raw.githubusercontent.com/hoanggia
 echo change_hostname
 curl -L -o "%TEMP%\change_hostname.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/change_hostname.bat"
 
-
+echo change_hostname
+curl -L -o "%TEMP%\set_account.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/set_account.bat"
 
 timeout /t 3
 :: --------------------------------------------------
 :: Run scripts
 :: --------------------------------------------------
+
+powershell -command "start-process ""$env:TEMP\set_account.bat"""
+
+timeout /t 3
 
 powershell -command "start-process ""$env:TEMP\change_hostname.bat"""
 
@@ -65,4 +70,19 @@ powershell -command "start-process ""$env:TEMP\add_printer.bat"""
 
 timeout /t 3
 
+
+echo STEP FINAL - Cleanup scripts
+
+for %%F in (
+    add_printer.bat
+    download_apps.bat
+    activatekey_hostname.ps1
+    update_infor.vbs
+    change_hostname.bat
+    set_account.bat
+) do (
+    if exist "%TEMP%\%%F" del /f /q "%TEMP%\%%F"
+)
+
+echo Cleanup completed.
 

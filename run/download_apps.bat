@@ -101,10 +101,16 @@ powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut 
 echo [OK] UniKey xong.
 echo.
 
-:: 6. Microsoft 365
+:: cài Phần mềm FoxitPDF Reader202613_L10N_Setup_Prom_x64
+echo *** Dang cai dat FoxitPDF Reader202613_L10N_Setup_Prom_x64...
+start /wait "" "%SetupFolder%\FoxitPDFReader202613_L10N_Setup_Prom_x64.exe" /quiet
+echo [OK] FoxitPDF Reader xong.
+echo.
+
+:: Microsoft 365
 echo *** Dang cai dat Microsoft 365...
-start /wait "" "%SetupFolder%\setup_office.exe" 
-echo [OK] Microsoft 365 xong.
+start "%SetupFolder%\setup_office.exe" 
+echo [OK] Microsoft 365 is installing..........
 echo.
 
 @REM :: 7. Microsoft Teams
@@ -112,13 +118,6 @@ echo.
 @REM start /wait "" "teams_setup.exe" /checkInstall /silent
 @REM echo [OK] Microsoft Teams xong.
 @REM echo.
-
-
-:: 8. cài Phần mềm FoxitPDF Reader202613_L10N_Setup_Prom_x64
-echo *** Dang cai dat FoxitPDF Reader202613_L10N_Setup_Prom_x64...
-start /wait "" "%SetupFolder%\FoxitPDFReader202613_L10N_Setup_Prom_x64.exe" /quiet
-echo [OK] FoxitPDF Reader xong.
-echo.
 
 
 echo ============================================================
