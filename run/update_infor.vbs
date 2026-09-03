@@ -183,29 +183,12 @@ Dim strSubject, strBody
 strSubject = "Full System Information Audit - " & strSystemName
 
 
-' ============================================================================
-' get user mailbox
-' ============================================================================
-
-
 Dim strOutlookEmail, strLocalusers, intResult
 
-intResult = MsgBox( _
-    "Do you want to send email to IT Department?", _
-    vbYesNo + vbQuestion + vbDefaultButton2, _
-    "confirm to send")
-
-If intResult = vbYes Then
-    strOutlookEmail = GetOutlookEmail()
-    SendViaNewOutlook strRecipientEmail, strCcEmail, strSubject, strBody
-    ' MsgBox "Đang mở Outlook để tạo email.", vbInformation, "Thông báo"
-Else
-    ' MsgBox "Đã hủy gửi email.", vbInformation, "Thông báo"
-End If
-
-' 5. Outlook Email Address (if configured)
+'get local users information.
 strLocalusers = GetLocalUsersInfo()
 
+'all information.
 strBody =   "=== System Information ===" & vbCrLf & vbCrLf & _
             "BIOS Serial Number: " & strBIOSSerial & vbCrLf & _
             "Email address: " & strOutlookEmail & vbCrLf & _
@@ -258,6 +241,21 @@ strBody =   "=== System Information ===" & vbCrLf & vbCrLf & _
 ' Save report to network share
 SaveReportToFile strBody
 
+' =========================================================================
+' CONFIRM SEND MAIL
+' =========================================================================
+intResult = MsgBox( _
+    "Do you want to send email to IT Department?", _
+    vbYesNo + vbQuestion + vbDefaultButton2, _
+    "confirm to send")
+
+If intResult = vbYes Then
+    strOutlookEmail = GetOutlookEmail()
+    SendViaNewOutlook strRecipientEmail, strCcEmail, strSubject, strBody
+    ' MsgBox "Đang mở Outlook để tạo email.", vbInformation, "Thông báo"
+Else
+    ' MsgBox "Đã hủy gửi email.", vbInformation, "Thông báo"
+End If
 
 '=========================================================================
 ' Save report to local folder
