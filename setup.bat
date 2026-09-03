@@ -139,12 +139,14 @@ set /p CHOICE=Nhap lua chon (VD: 1 4 5 6) :
 for %%A in (%CHOICE%) do (
     if "%%A"=="1" (
         echo Running Set Account...
-        call "%TEMP%\set_account.bat"
+        @REM call "%TEMP%\set_account.bat"
+        powershell -command "start-process ""$env:TEMP\set_account.bat"""
     )
 
     if "%%A"=="2" (
         echo Running Change Hostname...
-        call "%TEMP%\change_hostname.bat"
+        @REM call "%TEMP%\change_hostname.bat"
+        powershell -command "start-process ""$env:TEMP\change_hostname.bat"""
     )
 
     if "%%A"=="3" (
@@ -154,12 +156,14 @@ for %%A in (%CHOICE%) do (
 
     if "%%A"=="4" (
         echo Running Download Apps...
-        call "%TEMP%\download_apps.bat"
+        @REM call "%TEMP%\download_apps.bat"
+        powershell -command "start-process ""$env:TEMP\download_apps.bat"""
     )
 
     if "%%A"=="5" (
         echo Running Add Printer...
-        call "%TEMP%\add_printer.bat"
+        @REM call "%TEMP%\add_printer.bat"
+        powershell -command "start-process ""$env:TEMP\add_printer.bat""" -wait "
     )
 
     if "%%A"=="6" (
