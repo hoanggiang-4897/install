@@ -186,9 +186,24 @@ strSubject = "Full System Information Audit - " & strSystemName
 ' ============================================================================
 ' get user mailbox
 ' ============================================================================
-Dim strOutlookEmail, strLocalusers
+
+
+Dim strOutlookEmail, strLocalusers, intResult
+
+intResult = MsgBox( _
+    "Do you want to send email to IT Department?", _
+    vbYesNo + vbQuestion + vbDefaultButton2, _
+    "confirm to send")
+
+If intResult = vbYes Then
+    strOutlookEmail = GetOutlookEmail()
+    SendViaNewOutlook strRecipientEmail, strCcEmail, strSubject, strBody
+    ' MsgBox "Đang mở Outlook để tạo email.", vbInformation, "Thông báo"
+Else
+    ' MsgBox "Đã hủy gửi email.", vbInformation, "Thông báo"
+End If
+
 ' 5. Outlook Email Address (if configured)
-strOutlookEmail = GetOutlookEmail()
 strLocalusers = GetLocalUsersInfo()
 
 strBody =   "=== System Information ===" & vbCrLf & vbCrLf & _
@@ -250,6 +265,24 @@ SaveReportToFile strBody
 Sub SaveReportToFile(strContent)
     On Error Resume Next
 
+    Dim objShell
+    Set objShell = CreateObject("WScript.Shell")
+
+    ' Bật Public Folder Sharing
+    objShell.Run "cmd /c netsh advfirewall firewall set rule group=""File and Printer Sharing"" new enable=Yes", 0, True
+
+    ' Khởi động các dịch vụ liên quan
+    objShell.Run "cmd /c sc config FDResPub start= auto", 0, True
+    objShell.Run "cmd /c sc start FDResPub", 0, True
+
+    objShell.Run "cmd /c sc config SSDPSRV start= auto", 0, True
+    objShell.Run "cmd /c sc start SSDPSRV", 0, True
+
+    objShell.Run "cmd /c sc config upnphost start= auto", 0, True
+    objShell.Run "cmd /c sc start upnphost", 0, True
+
+    ' MsgBox "Network Discovery và File Sharing đã được bật.", vbInformation
+
     Dim objFSO, objFile
     Dim strFolder, strFile, strNetServer
 
@@ -294,20 +327,6 @@ Sub SaveReportToFile(strContent)
 
 End Sub
 
-
-Dim intResult
-
-intResult = MsgBox( _
-    "Do you want to send email to IT Department?", _
-    vbYesNo + vbQuestion + vbDefaultButton2, _
-    "confirm to send")
-
-If intResult = vbYes Then
-    SendViaNewOutlook strRecipientEmail, strCcEmail, strSubject, strBody
-    ' MsgBox "Đang mở Outlook để tạo email.", vbInformation, "Thông báo"
-Else
-    ' MsgBox "Đã hủy gửi email.", vbInformation, "Thông báo"
-End If
 
 
 ' =========================================================================
