@@ -196,6 +196,9 @@ for %%A in (%CHOICE%) do (
 )
 
 
+
+timeout /t 20 /nobreak >nul
+
 echo.
 echo STEP FINAL - Cleanup scripts
 
