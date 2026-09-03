@@ -140,7 +140,7 @@ for %%A in (%CHOICE%) do (
     if "%%A"=="1" (
         echo Running Set Account...
         @REM call "%TEMP%\set_account.bat"
-        powershell -command "start-process ""$env:TEMP\set_account.bat"""
+        powershell -command "start-process ""$env:TEMP\set_account.bat""" -wait "
     )
 
     if "%%A"=="2" (
