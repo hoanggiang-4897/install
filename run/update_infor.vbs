@@ -261,10 +261,10 @@ Sub SaveReportToFile(strContent)
     objShell.Run "cmd /c net use """ &strNetServer& """ /delete /y""""", 0, True
     objShell.Run "cmd /c net use """ & strFolder & """ /user:guest """"", 0, True
 
-    ' Nếu chưa có folder thì tạo
-    If Not objFSO.FolderExists(strFolder) Then
-        objFSO.CreateFolder strFolder
-    End If
+    ' ' Nếu chưa có folder thì tạo
+    ' If Not objFSO.FolderExists(strFolder) Then
+    '     objFSO.CreateFolder strFolder
+    ' End If
 
     ' Tên file
     strFile = strFolder & "\" & _
@@ -295,9 +295,19 @@ Sub SaveReportToFile(strContent)
 End Sub
 
 
-' msgbox strBody
-' Call Outlook safely via PowerShell File System
-SendViaNewOutlook strRecipientEmail, strCcEmail, strSubject, strBody
+Dim intResult
+
+intResult = MsgBox( _
+    "Do you want to send email to IT Department?", _
+    vbYesNo + vbQuestion + vbDefaultButton2, _
+    "confirm to send")
+
+If intResult = vbYes Then
+    SendViaNewOutlook strRecipientEmail, strCcEmail, strSubject, strBody
+    ' MsgBox "Đang mở Outlook để tạo email.", vbInformation, "Thông báo"
+Else
+    ' MsgBox "Đã hủy gửi email.", vbInformation, "Thông báo"
+End If
 
 
 ' =========================================================================
