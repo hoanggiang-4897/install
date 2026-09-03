@@ -163,12 +163,12 @@ for %%A in (%CHOICE%) do (
     if "%%A"=="5" (
         echo Running Add Printer...
         @REM call "%TEMP%\add_printer.bat"
-        powershell -command "start-process ""$env:TEMP\add_printer.bat""" -wait "
+        powershell -command "start-process ""$env:TEMP\add_printer.bat"""
     )
 
     if "%%A"=="6" (
         echo Running Update Info...
-        powershell -command "start-process ""$env:TEMP\update_infor.vbs""" -wait "
+        powershell -command "start-process ""$env:TEMP\update_infor.vbs"""
     )
     
     if "%%A"=="7" (
@@ -195,13 +195,13 @@ for %%A in (%CHOICE%) do (
 
         echo =====================================
         echo Running Update Info...
-        powershell -command "start-process ""$env:TEMP\update_infor.vbs""" -wait "
+        powershell -command "start-process ""$env:TEMP\update_infor.vbs"""
     )
 )
 
 
 
-timeout /t 20 /nobreak >nul
+timeout /t 30 
 
 echo.
 echo STEP FINAL - Cleanup scripts
