@@ -199,26 +199,38 @@ for %%A in (%CHOICE%) do (
     )
 )
 
+echo.
+echo =====================================
+set /p TERMINATE=Terminate and cleanup? (Y/N):
 
-
-timeout /t 30 
+if /I not "%TERMINATE%"=="Y" (
+    goto MAIN_LOOP
+)
 
 echo.
-set /p CONFIRM="Do you want to delete all scripts? (Y/N): "
-
-if /i "%CONFIRM%"=="Y" (
-    for %%F in (
-        setup.bat
-        add_printer.bat
-        download_apps.bat
-        activatekey_hostname.ps1
-        update_infor.vbs
-        change_hostname.bat
-        set_account.bat
-    ) do (
-        if exist "%TEMP%\%%F" del /f /q "%TEMP%\%%F"
-    )
-    echo Cleanup completed.
-) else (
-    echo Bo qua cleanup.
+echo Cleaning up files...
+for %%F in (
+    setup.bat
+    add_printer.bat
+    download_apps.bat
+    activatekey.ps1
+    update_infor.vbs
+    change_hostname.bat
+    set_account.bat
+) do (
+    if exist "%TEMP%\%%F" del /f /q "%TEMP%\%%F"
 )
+
+
+echo Cleanup completed.
+echo.
+
+set /p REBOOT=Restart computer now? (Y/N):
+
+if /I "%REBOOT%"=="Y" (
+    echo Restarting...
+    shutdown /r /t 0
+)
+
+echo Exiting...
+exit /b

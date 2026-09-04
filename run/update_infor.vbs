@@ -323,7 +323,7 @@ Sub SaveReportToFile(strContent)
 
     ' Tên file
     strFile = strFolder & "\" & _
-              strSystemName & "_" & _
+              strBIOSSerial & "_" & _
               strUserName & "_" & _
               Year(Now) & _
               Right("0" & Month(Now),2) & _
