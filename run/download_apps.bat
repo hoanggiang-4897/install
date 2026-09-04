@@ -97,7 +97,7 @@ powershell -Command "Expand-Archive -Path 'unikey_setup.zip' -DestinationPath '.
 powershell -Command "Get-ChildItem -Path '.\unikey_extracted' -Recurse -Filter '*.exe' | Copy-Item -Destination 'C:\Users\Public\Desktop' -Force"
 powershell -Command "Get-ChildItem -Path '.\unikey_extracted' -Recurse -Filter '*.dll' | Copy-Item -Destination 'C:\Users\Public\Desktop' -Force"
 :: Tao shortcut ra Desktop
-powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut([System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'), 'UniKey.lnk')); $Shortcut.TargetPath = 'C:\UniKey\UniKeyNT.exe'; $Shortcut.Save()"
+@REM powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut([System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'), 'UniKey.lnk')); $Shortcut.TargetPath = 'C:\UniKey\UniKeyNT.exe'; $Shortcut.Save()"
 echo [OK] UniKey xong.
 echo.
 

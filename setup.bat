@@ -120,6 +120,9 @@ timeout /t 2 /nobreak >nul
 :: Menu Selection
 :: --------------------------------------------------
 
+
+:MAIN_LOOP
+
 echo.
 echo ===================================
 echo Company Setup
@@ -133,6 +136,8 @@ echo [5] Add Printer
 echo [6] Update Info
 echo [7] run all
 echo.
+
+
 set /p CHOICE=Nhap lua chon (VD: 1 4 5 6) :
 
 
