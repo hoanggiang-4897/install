@@ -67,7 +67,7 @@ Function GetLocalUsersInfo()
     For Each objUser In colUsers
 
         Select Case LCase(objUser.Name)
-            Case "administrator", "defaultaccount", "guest", "wdagutilityaccount", "accountdo", "scan_acc", "acb"
+            Case "administrator", "defaultaccount", "guest", "wdagutilityaccount", "accountdo", "scan_acc",
                 ' Skip
 
             Case Else

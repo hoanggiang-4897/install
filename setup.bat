@@ -106,7 +106,7 @@ curl -Ls -o "%TEMP%\add_printer.bat" "https://raw.githubusercontent.com/hoanggia
 
 curl -Ls -o "%TEMP%\download_apps.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/download_apps.bat"
 
-curl -Ls -o "%TEMP%\activatekey_hostname.ps1" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/activatekey_hostname.ps1"
+curl -Ls -o "%TEMP%\activatekey.ps1" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/activatekey.ps1"
 
 curl -Ls -o "%TEMP%\update_infor.vbs" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/update_infor.vbs"
 
@@ -151,7 +151,7 @@ for %%A in (%CHOICE%) do (
 
     if "%%A"=="3" (
         echo Running Activate Key...
-        powershell -ExecutionPolicy Bypass -File "%TEMP%\activatekey_hostname.ps1"
+        powershell -ExecutionPolicy Bypass -File "%TEMP%\activatekey.ps1"
     )
 
     if "%%A"=="4" (
@@ -183,7 +183,7 @@ for %%A in (%CHOICE%) do (
 
         echo =====================================
         echo Running Activate Key...
-        powershell -ExecutionPolicy Bypass -File "%TEMP%\activatekey_hostname.ps1"
+        powershell -ExecutionPolicy Bypass -File "%TEMP%\activatekey.ps1"
 
         echo =====================================
         echo Running Download Apps...
