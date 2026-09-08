@@ -136,7 +136,13 @@ echo [5] Add Printer
 echo [6] Update Info
 echo [7] run all
 echo.
+
+
+<<<<<<<<< Temporary merge branch 1
+set /p CHOICE=Nhap lua chon (VD: 1 4 5 6) :
+=========
 set /p CHOICE=Nhap lua chon (VD: 1 4 5 6) or quit to exit:
+>>>>>>>>> Temporary merge branch 2
 
 
 for %%A in (%CHOICE%) do (
