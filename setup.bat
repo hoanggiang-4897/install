@@ -182,11 +182,11 @@ for %%A in (%CHOICE%) do (
         echo Running all scripts..................
         echo =====================================
         echo Running Set Account...
-        call "%TEMP%\set_account.bat"
+        powershell -command "start-process ""$env:TEMP\set_account.bat""" -wait "
 
         echo =====================================
         echo Running Change Hostname...
-        call "%TEMP%\change_hostname.bat"
+        powershell -command "start-process ""$env:TEMP\change_hostname.bat"""
 
         echo =====================================
         echo Running Activate Key...
@@ -194,11 +194,11 @@ for %%A in (%CHOICE%) do (
 
         echo =====================================
         echo Running Download Apps...
-        call "%TEMP%\download_apps.bat"
+        powershell -command "start-process ""$env:TEMP\download_apps.bat""" -wait "
 
         echo =====================================
         echo Running Add Printer...
-        call "%TEMP%\add_printer.bat"
+        powershell -command "start-process ""$env:TEMP\add_printer.bat""" -wait "
 
         echo =====================================
         echo Running Update Info...
