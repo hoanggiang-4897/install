@@ -9,8 +9,8 @@ Add-Type -AssemblyName System.Windows.Forms
 $UpgradeKey = "VK7JG-NPHTM-C97JM-9MPGT-3V66T"
 
 $TempFolder = "$env:windir\Temp"
-$PostScript = Join-Path $TempFolder "PostUpgrade.ps1"
-$LogFile    = Join-Path $TempFolder "EditionUpgrade.log"
+# $PostScript = Join-Path $TempFolder "PostUpgrade.ps1"
+# $LogFile    = Join-Path $TempFolder "EditionUpgrade.log"
 
 # # Dùng Common Startup để chạy bất kể user nào đăng nhập trước
 # $StartupFolder   = [Environment]::GetFolderPath('CommonStartup')
