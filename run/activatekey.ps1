@@ -1,6 +1,5 @@
 #Requires -RunAsAdministrator
 
-Add-Type -AssemblyName Microsoft.VisualBasic
 Add-Type -AssemblyName System.Windows.Forms
 
 # =====================================================
@@ -10,192 +9,139 @@ Add-Type -AssemblyName System.Windows.Forms
 $UpgradeKey = "VK7JG-NPHTM-C97JM-9MPGT-3V66T"
 
 $TempFolder = "$env:windir\Temp"
-$KeyFile    = Join-Path $TempFolder "RetailKey.dat"
 $PostScript = Join-Path $TempFolder "PostUpgrade.ps1"
 $LogFile    = Join-Path $TempFolder "EditionUpgrade.log"
 
-# Dùng Common Startup để chạy bất kể user nào đăng nhập trước
-$StartupFolder   = [Environment]::GetFolderPath('CommonStartup')
-$StartupShortcut = Join-Path $StartupFolder "PostUpgrade.lnk"
+# # Dùng Common Startup để chạy bất kể user nào đăng nhập trước
+# $StartupFolder   = [Environment]::GetFolderPath('CommonStartup')
+# $StartupShortcut = Join-Path $StartupFolder "PostUpgrade.lnk"
 
-Start-Transcript -Path $LogFile -Force
+$WifiProfileName = $null
+$WifiProfile = Get-NetConnectionProfile -ErrorAction SilentlyContinue |
+    Where-Object { $_.InterfaceAlias -match 'Wi-Fi|Wireless|WLAN' } |
+    Select-Object -First 1
 
-# =====================================================
-# INPUT PRODUCT KEY
-# =====================================================
-
-$RetailKey = [Microsoft.VisualBasic.Interaction]::InputBox(
-    "Enter Windows Pro Retail Product Key",
-    "Windows Activation",
-    ""
-)
-
-if ([string]::IsNullOrWhiteSpace($RetailKey))
+if ($WifiProfile)
 {
-    [System.Windows.Forms.MessageBox]::Show(
-        "Retail Product Key is required.",
-        "Windows Activation"
-    )
-
-    Stop-Transcript
-    exit
+    $WifiProfileName = $WifiProfile.Name
 }
 
-# =====================================================
-# SAVE PRODUCT KEY
-# =====================================================
+# Start-Transcript -Path $LogFile -Force
 
-$RetailKey |
-ConvertTo-SecureString -AsPlainText -Force |
-ConvertFrom-SecureString |
-Set-Content $KeyFile -Force
+# # =====================================================
+# # CREATE POST BOOT SCRIPT
+# # =====================================================
 
-# =====================================================
-# CREATE POST BOOT SCRIPT
-# =====================================================
+# $PostBootContent = @"
+# # ---- Tu nang quyen (Run as Administrator) neu chua co ----
+# if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
+# {
+#     Start-Process powershell.exe -ArgumentList '-ExecutionPolicy Bypass -WindowStyle Hidden -File "`$PSCommandPath"' -Verb RunAs
+#     exit
+# }
 
-$PostBootContent = @"
-# ---- Tu nang quyen (Run as Administrator) neu chua co ----
-if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
-{
-    Start-Process powershell.exe -ArgumentList '-ExecutionPolicy Bypass -WindowStyle Hidden -File "`$PSCommandPath"' -Verb RunAs
-    exit
-}
+# `$StartupShortcut = "$StartupShortcut"
 
-`$KeyFile         = "$KeyFile"
-`$StartupShortcut = "$StartupShortcut"
+# Start-Sleep -Seconds 20
 
-Start-Sleep -Seconds 20
+# try
+# {
+#     Write-Output "Reconnecting Wi-Fi..."
 
-try
-{
-    Write-Output "Enabling network adapters..."
+#     if (-not [string]::IsNullOrWhiteSpace("$WifiProfileName"))
+#     {
+#         netsh.exe wlan connect name="$WifiProfileName" | Out-Null
+#     }
 
-    Get-NetAdapter -Physical -ErrorAction SilentlyContinue |
-    ForEach-Object {
+#     Start-Sleep -Seconds 10
 
-        Enable-NetAdapter `
-            -Name `$_.Name `
-            -Confirm:`$false `
-            -ErrorAction SilentlyContinue
-    }
+#     Write-Output "Waiting for internet connection..."
 
-    Start-Sleep -Seconds 10
+#     `$Timeout = 120
+#     `$Elapsed = 0
 
-    Write-Output "Waiting for internet connection..."
+#     while (
+#         -not (Test-NetConnection microsoft.com -InformationLevel Quiet) `
+#         -and (`$Elapsed -lt `$Timeout)
+#     )
+#     {
+#         Start-Sleep -Seconds 5
+#         `$Elapsed += 5
+#     }
 
-    `$Timeout = 120
-    `$Elapsed = 0
+#     if (`$Elapsed -lt `$Timeout)
+#     {
+#         Write-Output "Internet connection detected."
+#     }
+#     else
+#     {
+#         Write-Output "Internet connection timeout."
+#     }
 
-    while (
-        -not (Test-NetConnection microsoft.com -InformationLevel Quiet) `
-        -and (`$Elapsed -lt `$Timeout)
-    )
-    {
-        Start-Sleep -Seconds 5
-        `$Elapsed += 5
-    }
+# }
+# catch
+# {
+#     Write-Output `$_.Exception.Message
 
-    if (`$Elapsed -lt `$Timeout)
-    {
-        Write-Output "Internet connection detected."
-    }
-    else
-    {
-        Write-Output "Internet connection timeout."
-    }
+#     Write-EventLog `
+#         -LogName Application `
+#         -Source "Windows Error Reporting" `
+#         -EntryType Error `
+#         -EventId 1000 `
+#         -Message `$_.Exception.Message `
+#         -ErrorAction SilentlyContinue
+# }
+# finally
+# {
+#     Remove-Item `$StartupShortcut -Force -ErrorAction SilentlyContinue
+#     Remove-Item `$MyInvocation.MyCommand.Path -Force -ErrorAction SilentlyContinue
+# }
 
-    if (Test-Path `$KeyFile)
-    {
-        `$SecureKey = Get-Content `$KeyFile -Raw |
-                      ConvertTo-SecureString
+# "@
 
-        `$RetailKey = [System.Net.NetworkCredential]::new(
-            "",
-            `$SecureKey
-        ).Password
+# $PostBootContent |
+# Set-Content `
+#     -Path $PostScript `
+#     -Encoding UTF8 `
+#     -Force
 
-        `$Slmgr = "`$env:SystemRoot\System32\slmgr.vbs"
+# # =====================================================
+# # TAO SHORTCUT TRONG STARTUP FOLDER
+# # (thay the Scheduled Task - tu chay khi dang nhap, tu xoa sau khi xong)
+# # =====================================================
 
-        cscript.exe //nologo `$Slmgr /ipk `$RetailKey
+# if (Test-Path $StartupShortcut)
+# {
+#     Remove-Item $StartupShortcut -Force -ErrorAction SilentlyContinue
+# }
 
-        Start-Sleep -Seconds 5
+# $WshShell = New-Object -ComObject WScript.Shell
+# $Shortcut = $WshShell.CreateShortcut($StartupShortcut)
+# $Shortcut.TargetPath       = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
+# $Shortcut.Arguments        = "-ExecutionPolicy Bypass -WindowStyle Hidden -File `"$PostScript`""
+# $Shortcut.WorkingDirectory = $TempFolder
+# $Shortcut.WindowStyle      = 7   # Minimized
+# $Shortcut.Description      = "Post-upgrade Wi-Fi reconnect task"
+# $Shortcut.Save()
 
-        cscript.exe //nologo `$Slmgr /ato
-    }
-}
-catch
-{
-    Write-Output `$_.Exception.Message
-
-    Write-EventLog `
-        -LogName Application `
-        -Source "Windows Error Reporting" `
-        -EntryType Error `
-        -EventId 1000 `
-        -Message `$_.Exception.Message `
-        -ErrorAction SilentlyContinue
-}
-finally
-{
-    Remove-Item `$KeyFile -Force -ErrorAction SilentlyContinue
-    Remove-Item `$StartupShortcut -Force -ErrorAction SilentlyContinue
-    Remove-Item `$MyInvocation.MyCommand.Path -Force -ErrorAction SilentlyContinue
-}
-
-"@
-
-$PostBootContent |
-Set-Content `
-    -Path $PostScript `
-    -Encoding UTF8 `
-    -Force
-
-# =====================================================
-# TAO SHORTCUT TRONG STARTUP FOLDER
-# (thay the Scheduled Task - tu chay khi dang nhap, tu xoa sau khi xong)
-# =====================================================
-
-if (Test-Path $StartupShortcut)
-{
-    Remove-Item $StartupShortcut -Force -ErrorAction SilentlyContinue
-}
-
-$WshShell = New-Object -ComObject WScript.Shell
-$Shortcut = $WshShell.CreateShortcut($StartupShortcut)
-$Shortcut.TargetPath       = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
-$Shortcut.Arguments        = "-ExecutionPolicy Bypass -WindowStyle Hidden -File `"$PostScript`""
-$Shortcut.WorkingDirectory = $TempFolder
-$Shortcut.WindowStyle      = 7   # Minimized
-$Shortcut.Description      = "Post-upgrade activation task"
-$Shortcut.Save()
-
-# =====================================================
-# CHECK WINDOWS EDITION
-# =====================================================
+# # =====================================================
+# # CHECK WINDOWS EDITION
+# # =====================================================
 
 $Edition = (
-    Get-ItemProperty `
-        "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+    Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
 ).EditionID
 
-Write-Host ""
-Write-Host "Current Edition : $Edition"
-Write-Host ""
+# Write-Host ""
+# Write-Host "Current Edition : $Edition"
+# Write-Host ""
 
 # =====================================================
-# DISABLE NETWORK BEFORE UPGRADE
+# DISCONNECT WI-FI BEFORE UPGRADE
 # =====================================================
 
-Write-Host "Disabling physical network adapters..."
-
-Get-NetAdapter -Physical -ErrorAction SilentlyContinue |
-Where-Object Status -ne "Disabled" |
-ForEach-Object {
-
-    Disable-NetAdapter -name "Wi-Fi" -Confirm:$false 
-    # -ErrorAction SilentlyContinue
-}
+Write-Host "Disconnecting Wi-Fi temporarily..."
+netsh.exe wlan disconnect | Out-Null
 
 Start-Sleep -Seconds 5
 
@@ -218,19 +164,53 @@ else
 }
 
 # =====================================================
-# RESTART PROMPT
+# RESTART PROMPT AND COUNTDOWN
 # =====================================================
 
-# $result = [System.Windows.Forms.MessageBox]::Show(
-#     "Upgrade completed.`r`n`r`nRestart now?",
-#     "Windows Activation",
-#     [System.Windows.Forms.MessageBoxButtons]::YesNo,
-#     [System.Windows.Forms.MessageBoxIcon]::Question
-# )
+# function Request-Restart
+# {
+#     $Result = [System.Windows.Forms.MessageBox]::Show(
+#         "Windows upgrade is ready.`r`n`r`nRestart now? The computer will restart after a 200-second countdown.",
+#         "Windows Activation",
+#         [System.Windows.Forms.MessageBoxButtons]::YesNo,
+#         [System.Windows.Forms.MessageBoxIcon]::Question
+#     )
+
+#     if ($Result -ne [System.Windows.Forms.DialogResult]::Yes)
+#     {
+#         if (-not [string]::IsNullOrWhiteSpace($WifiProfileName))
+#         {
+#             Write-Host "Reconnecting Wi-Fi..."
+#             netsh.exe wlan connect name="$WifiProfileName" | Out-Null
+#         }
+
+#         Write-Host "Restart cancelled. Run this script again or restart Windows manually."
+#         return
+#     }
+
+#     for ($SecondsRemaining = 200; $SecondsRemaining -gt 0; $SecondsRemaining--)
+#     {
+#         Write-Progress `
+#             -Activity "Restarting computer" `
+#             -Status "$SecondsRemaining seconds remaining" `
+#             -SecondsRemaining $SecondsRemaining `
+#             -PercentComplete ((200 - $SecondsRemaining) / 200 * 100)
+
+#         Start-Sleep -Seconds 1
+#     }
+
+#     Write-Progress -Activity "Restarting computer" -Completed
+
+#     try
+#     {
+#         Restart-Computer -Force -ErrorAction Stop
+#     }
+#     catch
+#     {
+#         Write-Warning "Restart-Computer failed. Trying shutdown.exe..."
+#         shutdown.exe /r /t 0 /f
+#     }
+# }
 
 # Stop-Transcript
-
-# if ($result -eq [System.Windows.Forms.DialogResult]::Yes)
-# {
-#     Restart-Computer -Force
-# }
+# Request-Restart

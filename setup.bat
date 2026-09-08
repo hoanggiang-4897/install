@@ -239,8 +239,15 @@ echo.
 set /p REBOOT=Restart computer now? (Y/N):
 
 if /I "%REBOOT%"=="Y" (
+    echo Restarting in 200 seconds...
+    for /L %%S in (200,-1,1) do (
+        echo Restarting in %%S seconds...
+        timeout /t 1 /nobreak >nul
+    )
+
     echo Restarting...
-    shutdown /r /t 0
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -Command ^
+        "$ErrorActionPreference = 'Stop'; try { Restart-Computer -Force } catch { shutdown.exe /r /t 0 /f }"
 )
 
 echo Exiting...
