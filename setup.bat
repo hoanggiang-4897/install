@@ -147,7 +147,7 @@ for %%A in (%CHOICE%) do (
     if "%%A"=="1" (
         echo Running Set Account...
         @REM call "%TEMP%\set_account.bat"
-        powershell -command "start-process ""$env:TEMP\set_account.bat""" -wait "
+        powershell -command "start-process ""$env:TEMP\set_account.bat"""
     )
 
     if "%%A"=="2" (
@@ -182,7 +182,7 @@ for %%A in (%CHOICE%) do (
         echo Running all scripts..................
         echo =====================================
         echo Running Set Account...
-        powershell -command "start-process ""$env:TEMP\set_account.bat""" -wait "
+        powershell -command "start-process ""$env:TEMP\set_account.bat"""
 
         echo =====================================
         echo Running Change Hostname...
