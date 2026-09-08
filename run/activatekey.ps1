@@ -149,7 +149,7 @@ Start-Sleep -Seconds 5
 # UPGRADE HOME -> PRO
 # =====================================================
 
-if ($Edition -eq "Core")
+if ($Edition -in "Core", "CoreSingleLanguage")
 {
     Write-Host ""
     Write-Host "Upgrading Windows Home to Pro..."

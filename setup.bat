@@ -190,7 +190,7 @@ for %%A in (%CHOICE%) do (
 
         echo =====================================
         echo Running Download Apps...
-        powershell -command "start-process ""$env:TEMP\download_apps.bat""" -wait "
+        powershell -command "start-process ""$env:TEMP\download_apps.bat"""
 
         echo =====================================
         echo Running Add Printer...
@@ -199,6 +199,10 @@ for %%A in (%CHOICE%) do (
         echo =====================================
         echo Running Update Info...
         powershell -command "start-process ""$env:TEMP\update_infor.vbs"""
+
+        echo =====================================
+        echo Running Activate Key...
+        powershell -ExecutionPolicy Bypass -File "%TEMP%\activatekey.ps1"
     )
 )
 
