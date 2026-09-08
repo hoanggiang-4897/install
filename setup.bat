@@ -120,6 +120,9 @@ timeout /t 2 /nobreak >nul
 :: Menu Selection
 :: --------------------------------------------------
 
+
+:MAIN_LOOP
+
 echo.
 echo ===================================
 echo Company Setup
@@ -133,7 +136,9 @@ echo [5] Add Printer
 echo [6] Update Info
 echo [7] run all
 echo.
-set /p CHOICE=Nhap lua chon (VD: 1 4 5 6) :
+
+
+set /p CHOICE=Nhap lua chon (VD: 1 4 5 6) or quit to exit:
 
 
 for %%A in (%CHOICE%) do (
@@ -197,6 +202,10 @@ for %%A in (%CHOICE%) do (
         echo Running Update Info...
         powershell -command "start-process ""$env:TEMP\update_infor.vbs"""
     )
+
+    if /I "%%A" == "quit" (
+        goto QUITPROCESS
+    )
 )
 
 echo.
@@ -206,6 +215,9 @@ set /p TERMINATE=Terminate and cleanup? (Y/N):
 if /I not "%TERMINATE%"=="Y" (
     goto MAIN_LOOP
 )
+
+
+:QUITPROCESS
 
 echo.
 echo Cleaning up files...
@@ -220,7 +232,6 @@ for %%F in (
 ) do (
     if exist "%TEMP%\%%F" del /f /q "%TEMP%\%%F"
 )
-
 
 echo Cleanup completed.
 echo.
