@@ -189,10 +189,6 @@ for %%A in (%CHOICE%) do (
         powershell -command "start-process ""$env:TEMP\change_hostname.bat"""
 
         echo =====================================
-        echo Running Activate Key...
-        powershell -ExecutionPolicy Bypass -File "%TEMP%\activatekey.ps1"
-
-        echo =====================================
         echo Running Download Apps...
         powershell -command "start-process ""$env:TEMP\download_apps.bat""" -wait "
 
