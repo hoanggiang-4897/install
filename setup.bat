@@ -136,8 +136,6 @@ echo [5] Add Printer
 echo [6] Update Info
 echo [7] run all
 echo.
-
-
 set /p CHOICE=Nhap lua chon (VD: 1 4 5 6) or quit to exit:
 
 
