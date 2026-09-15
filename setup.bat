@@ -153,7 +153,7 @@ for %%A in (%CHOICE%) do (
     if "%%A"=="2" (
         echo Running Change Hostname...
         @REM call "%TEMP%\change_hostname.bat"
-        powershell -command "start-process ""$env:TEMP\change_hostname.bat"""
+        powershell -command "start-process ""$env:TEMP\change_hostname.bat""" -wait "
     )
 
     if "%%A"=="3" (
@@ -164,18 +164,18 @@ for %%A in (%CHOICE%) do (
     if "%%A"=="4" (
         echo Running Download Apps...
         @REM call "%TEMP%\download_apps.bat"
-        powershell -command "start-process ""$env:TEMP\download_apps.bat"""
+        powershell -command "start-process ""$env:TEMP\download_apps.bat""" -wait "
     )
 
     if "%%A"=="5" (
         echo Running Add Printer...
         @REM call "%TEMP%\add_printer.bat"
-        powershell -command "start-process ""$env:TEMP\add_printer.bat"""
+        powershell -command "start-process ""$env:TEMP\add_printer.bat""" -wait "
     )
 
     if "%%A"=="6" (
         echo Running Update Info...
-        powershell -command "start-process ""$env:TEMP\update_infor.vbs"""
+        powershell -command "start-process ""$env:TEMP\update_infor.vbs""" -wait "
     )
     
     if "%%A"=="7" (
