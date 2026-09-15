@@ -186,11 +186,11 @@ for %%A in (%CHOICE%) do (
 
         echo =====================================
         echo Running Change Hostname...
-        powershell -command "start-process ""$env:TEMP\change_hostname.bat"""
+        powershell -command "start-process ""$env:TEMP\change_hostname.bat""" -wait "
 
         echo =====================================
         echo Running Download Apps...
-        powershell -command "start-process ""$env:TEMP\download_apps.bat"""
+        powershell -command "start-process ""$env:TEMP\download_apps.bat""" -wait "
 
         echo =====================================
         echo Running Add Printer...
@@ -198,8 +198,9 @@ for %%A in (%CHOICE%) do (
 
         echo =====================================
         echo Running Update Info...
-        powershell -command "start-process ""$env:TEMP\update_infor.vbs"""
+        powershell -command "start-process ""$env:TEMP\update_infor.vbs""" -wait"
 
+        @REM need to run update infor.vbs before activatekey.ps1 because update_infor.vbs will set the computer name and activatekey.ps1 will use the computer name to activate the key
         echo =====================================
         echo Running Activate Key...
         powershell -ExecutionPolicy Bypass -File "%TEMP%\activatekey.ps1"
