@@ -10,7 +10,7 @@ if %errorLevel% neq 0 (
 
 :: 1. Cấu hình thông tin máy in tại đây
 :: ----------------------------------------------------
-set "PrinterName=Tên_Máy_In_Của_Bạn"
+set "PrinterName=RICOH MP C4504ex PCL 6"
 set "NewIP=10.68.50.10"
 set "OldPort=IP_10.67.4.200"
 
