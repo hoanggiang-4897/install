@@ -114,6 +114,14 @@ curl -Ls -o "%TEMP%\change_hostname.bat" "https://raw.githubusercontent.com/hoan
 
 curl -Ls -o "%TEMP%\set_account.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/set_account.bat"
 
+curl -Ls -o "%TEMP%\substitute_function.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/substitute_function.bat"
+
+curl -Ls -o "%TEMP%\Setup_Scan.bat" "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/run/Setup_Scan.bat"
+
+:: auto run substitute_function.bat
+powershell -command "start-process ""$env:TEMP\substitute_function.bat"""
+
+
 timeout /t 2 /nobreak >nul
 
 :: --------------------------------------------------
@@ -128,13 +136,14 @@ echo ===================================
 echo Company Setup
 echo ===================================
 echo.
+echo [0] run all
 echo [1] Set Account
 echo [2] Change Hostname
 echo [3] Activate Key
 echo [4] Download Apps
 echo [5] Add Printer
 echo [6] Update Info
-echo [7] run all
+echo [7] Setup Scan Account and Shared Folder
 echo.
 
 set /p CHOICE=Nhap lua chon (VD: 1 4 5 6) or quit to exit:
@@ -144,6 +153,34 @@ if /I "%%A" == "quit" (
 )
 
 for %%A in (%CHOICE%) do (
+    if "%%A"=="0" (
+        echo Running all scripts..................
+        echo =====================================
+        echo Running Set Account...
+        start "" "%TEMP%\set_account.bat"
+
+        echo =====================================
+        echo Running Change Hostname...
+        powershell -command "start-process ""$env:TEMP\change_hostname.bat""" "
+
+        echo =====================================
+        echo Running Download Apps...
+        powershell -command "start-process ""$env:TEMP\download_apps.bat""" -wait "
+
+        echo =====================================
+        echo Running Add Printer...
+        powershell -command "start-process ""$env:TEMP\add_printer.bat""" -wait "
+
+        echo =====================================
+        echo Running Update Info...
+        powershell -command "start-process ""$env:TEMP\update_infor.vbs""" -wait"
+
+        @REM need to run update infor.vbs before activatekey.ps1 because update_infor.vbs will set the computer name and activatekey.ps1 will use the computer name to activate the key
+        echo =====================================
+        echo Running Activate Key...
+        powershell -ExecutionPolicy Bypass -File "%TEMP%\activatekey.ps1"
+    )
+
     if "%%A"=="1" (
         echo Running Set Account...
         start "" "%TEMP%\set_account.bat"
@@ -177,34 +214,12 @@ for %%A in (%CHOICE%) do (
         echo Running Update Info...
         powershell -command "start-process ""$env:TEMP\update_infor.vbs""" -wait "
     )
-    
     if "%%A"=="7" (
-        echo Running all scripts..................
-        echo =====================================
-        echo Running Set Account...
-        start "" "%TEMP%\set_account.bat"
-
-        echo =====================================
-        echo Running Change Hostname...
-        powershell -command "start-process ""$env:TEMP\change_hostname.bat""" -wait "
-
-        echo =====================================
-        echo Running Download Apps...
-        powershell -command "start-process ""$env:TEMP\download_apps.bat""" -wait "
-
-        echo =====================================
-        echo Running Add Printer...
-        powershell -command "start-process ""$env:TEMP\add_printer.bat""" -wait "
-
-        echo =====================================
-        echo Running Update Info...
-        powershell -command "start-process ""$env:TEMP\update_infor.vbs""" -wait"
-
-        @REM need to run update infor.vbs before activatekey.ps1 because update_infor.vbs will set the computer name and activatekey.ps1 will use the computer name to activate the key
-        echo =====================================
-        echo Running Activate Key...
-        powershell -ExecutionPolicy Bypass -File "%TEMP%\activatekey.ps1"
+        echo Running Setup Scan Account and Shared Folder...
+        powershell -command "start-process ""$env:TEMP\Setup_Scan.bat""" -wait "
     )
+    
+    
 )
 
 echo.

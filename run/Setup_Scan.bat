@@ -42,4 +42,4 @@ echo User   : scan_acc
 echo Share  : \\%COMPUTERNAME%\scan
 echo Folder : C:\scan
 
-exit
+exit /b
