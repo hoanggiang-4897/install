@@ -67,7 +67,7 @@ echo.
 
 :: 1. Chrome (Sua lai lenh chay file .exe)
 echo *** Dang cai dat Google Chrome...
-start /wait "" "%SetupFolder%\chrome_installer.exe" /silent /install
+start /wait "" "%SetupFolder%\ChromeSetup.exe" /silent /install
 echo [OK] Chrome xong.
 echo.
 
