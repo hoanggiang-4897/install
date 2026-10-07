@@ -33,7 +33,7 @@ cd /d "%SetupFolder%"
 
 :: Cap nhat tai Chrome phien ban Standalone .exe chinh thuc tu Google
 echo [+] Dang tai Google Chrome (.exe)...
-curl -L -o "chrome_installer.exe" "https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7B15EC2986-05C7-6C17-E1DB-1780120F1383%7D%26lang%3Den%26browser%3D4%26usagestats%3D1%26appname%3DGoogle%2520Chrome%26needsadmin%3Dprefers%26ap%3D-arch_x64-statsdef_1%26installdataindex%3Dempty/update2/installers/ChromeSetup.exe"
+curl -L -o "ChromeSetup.exe" "https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7B15EC2986-05C7-6C17-E1DB-1780120F1383%7D%26lang%3Den%26browser%3D4%26usagestats%3D1%26appname%3DGoogle%2520Chrome%26needsadmin%3Dprefers%26ap%3D-arch_x64-statsdef_1%26installdataindex%3Dempty/update2/installers/ChromeSetup.exe"
 
 echo [+] Dang tai UltraViewer...
 curl -L -o "ultraviewer_setup.exe" "https://www.ultraviewer.net/vi/download/UltraViewer_setup_vi.exe"
