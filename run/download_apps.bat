@@ -68,9 +68,12 @@ echo.
 :: 1. Chrome (Sua lai lenh chay file .exe)
 echo *** Dang cai dat Google Chrome...
 start /wait winget settings --Enable InstallerHashOverride
-@REM  start /wait winget install -e --id Google.Chrome --silent --accept-source-agreements --accept-package-agreements
-runas /user:accountdo "winget install -e --id Google.Chrome -y --silent --accept-source-agreements --accept-package-agreements --ignore-security-hash"
-@REM  powershell -Command "Enable-LocalUser -Name 'scan_acc'"
+timeout /t 2
+
+runas /user:accountdo "winget install -e --id Google.Chrome --silent --accept-source-agreements --accept-package-agreements --ignore-security-hash"
+
+timeout /t 2
+start /wait winget settings --Enable InstallerHashOverride
 echo [OK] Chrome xong.
 echo.
 
