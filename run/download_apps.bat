@@ -67,10 +67,10 @@ echo.
 
 :: 1. Chrome (Sua lai lenh chay file .exe)
 echo *** Dang cai dat Google Chrome...
-start /wait winget settings --Enable InstallerHashOverride
+winget settings --Enable InstallerHashOverride
 timeout /t 2
 
-runas /user:accountdo "winget install -e --id Google.Chrome --silent --accept-source-agreements --accept-package-agreements --ignore-security-hash" /wait
+winget install -e --id Google.Chrome --source winget --silent --accept-source-agreements --accept-package-agreements --ignore-security-hash
 
 timeout /t 2
 start /wait winget settings --Enable InstallerHashOverride
