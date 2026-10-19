@@ -70,7 +70,7 @@ echo *** Dang cai dat Google Chrome...
 start /wait winget settings --Enable InstallerHashOverride
 timeout /t 2
 
-runas /user:accountdo "winget install -e --id Google.Chrome --silent --accept-source-agreements --accept-package-agreements --ignore-security-hash"
+runas /user:accountdo "winget install -e --id Google.Chrome --silent --accept-source-agreements --accept-package-agreements --ignore-security-hash" /wait
 
 timeout /t 2
 start /wait winget settings --Enable InstallerHashOverride
