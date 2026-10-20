@@ -114,10 +114,10 @@ echo [OK] FoxitPDF Reader xong.
 echo.
 
 :: Microsoft 365
-echo *** Dang cai dat Microsoft 365...
-start "%SetupFolder%\setup_office.exe" 
-echo [OK] Microsoft 365 is installing..........
-echo.
+@REM  echo *** Dang cai dat Microsoft 365...
+@REM  start "%SetupFolder%\setup_office.exe" 
+@REM  echo [OK] Microsoft 365 is installing..........
+@REM  echo.
 
 @REM :: 7. Microsoft Teams
 @REM echo [7/8] Dang cai dat Microsoft Teams...
@@ -129,4 +129,5 @@ echo.
 echo ============================================================
 echo   CAI DAT HOAN TAT
 echo ============================================================
-exit 0
+
+exit /b

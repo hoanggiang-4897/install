@@ -55,16 +55,16 @@ primaryUser   = audit.GetPrimaryUserName()
 ' Lưu report vào SMB Share / Local Folder
 logger.SaveReportToFile reportContent, serialNumber, primaryUser
 
-' Xác nhận gửi mail
-userChoice = MsgBox("Do you want to send email to IT Department?", _
-                    vbYesNo + vbQuestion + vbDefaultButton2, "Confirm Send")
+' ' Xác nhận gửi mail
+' userChoice = MsgBox("Do you want to send email to IT Department?", _
+'                     vbYesNo + vbQuestion + vbDefaultButton2, "Confirm Send")
 
-If userChoice = vbYes Then
-    notifier.Recipient = "giang.nh@sacomlife.com.vn"
-    notifier.Cc        = ""
-    notifier.Subject   = "Full System Information Audit - " & audit.SystemName
-    notifier.SendViaNewOutlook reportContent
-End If
+' If userChoice = vbYes Then
+'     notifier.Recipient = "giang.nh@sacomlife.com.vn"
+'     notifier.Cc        = ""
+'     notifier.Subject   = "Full System Information Audit - " & audit.SystemName
+'     notifier.SendViaNewOutlook reportContent
+' End If
 
 ' Clear Objects
 Set audit = Nothing
