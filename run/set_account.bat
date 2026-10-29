@@ -25,4 +25,5 @@ echo - User: %USERNAME%
 echo - Password: Morning#2026
 echo - Da add vao Administrators
 echo - Da reset password accountdo
+timeout /t 5
 exit

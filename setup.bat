@@ -157,11 +157,11 @@ for %%A in (%CHOICE%) do (
         echo Running all scripts..................
         echo =====================================
         echo Running Set Account...
-        start /wait "" "%TEMP%\set_account.bat"
+        powershell -command "start-process ""$env:TEMP\set_account.bat""" -wait "
 
         echo =====================================
         echo Running Change Hostname...
-        powershell -command "start-process ""$env:TEMP\change_hostname.bat""" "
+        powershell -command "start-process ""$env:TEMP\change_hostname.bat""" -wait "
 
         echo =====================================
         echo Running Download Apps...
@@ -183,7 +183,7 @@ for %%A in (%CHOICE%) do (
 
     if "%%A"=="1" (
         echo Running Set Account...
-        start "" "%TEMP%\set_account.bat"
+        powershell -command "start-process ""$env:TEMP\set_account.bat""" -wait "
         @REM powershell -command "start-process ""$env:TEMP\set_account.bat"""
     )
 
