@@ -34,7 +34,7 @@ cd /d "%SetupFolder%"
 :: Cap nhat tai Chrome phien ban Standalone .exe chinh thuc tu Google
 @REM  echo [+] Dang tai Google Chrome (.exe)...
 
-powershell -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/ChromeSetup.exe' -OutFile '$env:TEMP\ChromeSetup.exe'"
+powershell -Command "" Invoke-WebRequest -Uri "https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/ChromeSetup.exe" -OutFile "$env:TEMP\ChromeSetup.exe" ""
 
 echo [+] Dang tai UltraViewer...
 curl -L -o "ultraviewer_setup.exe" "https://www.ultraviewer.net/vi/download/UltraViewer_setup_vi.exe"
@@ -69,7 +69,7 @@ echo.
 
 :: 1. Chrome (Sua lai lenh chay file .exe)
 echo *** Dang cai dat Google Chrome...
-powershell -Command "start-process '$env:TEMP\ChromeSetup.exe' "
+powershell -Command "" start-process "$env:TEMP\ChromeSetup.exe" ""
 timeout /t 2
 
 
