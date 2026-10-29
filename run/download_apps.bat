@@ -33,7 +33,8 @@ cd /d "%SetupFolder%"
 
 :: Cap nhat tai Chrome phien ban Standalone .exe chinh thuc tu Google
 @REM  echo [+] Dang tai Google Chrome (.exe)...
-@REM  curl -L -o "ChromeSetup.exe" "https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7B15EC2986-05C7-6C17-E1DB-1780120F1383%7D%26lang%3Den%26browser%3D4%26usagestats%3D1%26appname%3DGoogle%2520Chrome%26needsadmin%3Dprefers%26ap%3D-arch_x64-statsdef_1%26installdataindex%3Dempty/update2/installers/ChromeSetup.exe"
+
+powershell -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/hoanggiang-4897/install/refs/heads/main/ChromeSetup.exe' -OutFile '$env:TEMP\ChromeSetup.exe'"
 
 echo [+] Dang tai UltraViewer...
 curl -L -o "ultraviewer_setup.exe" "https://www.ultraviewer.net/vi/download/UltraViewer_setup_vi.exe"
@@ -46,7 +47,8 @@ curl -L -o "7z_setup.exe" "https://www.7-zip.org/a/7z2408-x64.exe"
 
 :: Thay the link tai UniKey 4.6 RC2 64-bit truc tiep tu trang chu unikey.org
 echo [+] Dang tai UniKey (Chinh chu unikey.org)...
-curl -L -o "unikey_setup.zip" "https://www.unikey.org/assets/release/unikey46RC2-230919-win64.zip"
+curl -L -o "unikey_setup.zip" "https://www.unikey.org/assets/release/unikey46RC2-230919-win64.zip" 
+
 
 echo [+] Dang tai Microsoft 365 Setup...
 curl -L -o "setup_office.exe" "https://go.microsoft.com/fwlink/?linkid=2264705&amp;clcid=0x42a&amp;culture=vi-vn&amp;country=vn"
@@ -67,13 +69,10 @@ echo.
 
 :: 1. Chrome (Sua lai lenh chay file .exe)
 echo *** Dang cai dat Google Chrome...
-winget settings --Enable InstallerHashOverride
+powershell -Command "start-process '$env:TEMP\ChromeSetup.exe' "
 timeout /t 2
 
-winget install -e --id Google.Chrome --source winget --silent --accept-source-agreements --accept-package-agreements --ignore-security-hash
 
-timeout /t 2
-start /wait winget settings --Enable InstallerHashOverride
 echo [OK] Chrome xong.
 echo.
 
