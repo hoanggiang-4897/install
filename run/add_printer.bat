@@ -6,7 +6,7 @@ color 0A
 :: CONFIGURATION
 :: ==========================
 
-set PRINTER_IP=10.67.4.200
+set PRINTER_IP=10.68.50.10
 set PRINTER_NAME=Ricoh MP C4504ex
 set DRIVER_URL=https://support.ricoh.com/bb/pub_e/dr_ut_e/0001343/0001343376/V3200/z06671L16.exe
 
